@@ -1,0 +1,44 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>doosutils</artifactId>
+    <groupId>eu.debooy.doosutils</groupId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>eu.debooy.doosutils</groupId>
+  <artifactId>doosutils-core</artifactId>
+  <name>Utility classes voor DOOS Applicaties (core)</name>
+  <version>1.0.0-SNAPSHOT</version>
+  <description>Core utility classes voor DOOS Applicaties.</description>
+  <packaging>jar</packaging>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <displayName>${pom.name}</displayName>
+          <description>${pom.description}</description>
+          <archive>
+            <manifestEntries>
+              <Specification-Title>${pom.name}</Specification-Title>
+              <Specification-Version>${pom.version}</Specification-Version>
+              <Specification-Vendor>${pom.organization.name}</Specification-Vendor>
+              <Implementation-Title>${pom.name}</Implementation-Title>
+              <Implementation-Version>${pom.version}</Implementation-Version>
+              <Implementation-Vendor-Id>${pom.groupId}</Implementation-Vendor-Id>
+              <Implementation-Vendor>${pom.organization.name}</Implementation-Vendor>
+              <Build-Time>${buildNumber}</Build-Time>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+  </dependencies>
+</project>
