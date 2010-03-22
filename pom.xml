@@ -2,13 +2,13 @@
   <parent>
     <artifactId>doosutils</artifactId>
     <groupId>eu.debooy.doosutils</groupId>
-    <version>1.0.1</version>
+    <version>1.0.2-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>eu.debooy.doosutils</groupId>
   <artifactId>doosutils-core</artifactId>
   <name>Utility classes voor DOOS Applicaties (core)</name>
-  <version>1.0.1</version>
+  <version>1.0.2-SNAPSHOT</version>
   <description>Core utility classes voor DOOS Applicaties.</description>
   <packaging>jar</packaging>
 
