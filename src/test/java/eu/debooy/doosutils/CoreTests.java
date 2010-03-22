@@ -25,6 +25,7 @@ import org.junit.runners.Suite.SuiteClasses;
  * @author Marco de Booij
  */
 @RunWith(Suite.class)
-@SuiteClasses({ArgumentsTest.class})
+@SuiteClasses({ArgumentsTest.class,
+               DatumTest.class})
 public class CoreTests {
 }

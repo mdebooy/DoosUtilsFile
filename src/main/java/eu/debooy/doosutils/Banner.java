@@ -38,7 +38,10 @@ public class Banner {
     System.out.println("| [_______]_[_______] | E-Mail : marco.development@debooy.eu");
     System.out.println("|       [_____]       | Website: http://www.debooy.eu");
     System.out.println("+----------+----------+----------+----------+----------+----------+");
-    System.out.println(" v" + manifestInfo.getBuildVersion() + " | " + manifestInfo.getBuildDate());
+    System.out.println(String.format("%66s", "v"
+                                             + manifestInfo.getBuildVersion()
+                                             + " | "
+                                             + manifestInfo.getBuildDate()));
     System.out.println("");
   }
 }

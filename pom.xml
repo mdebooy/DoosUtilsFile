@@ -16,26 +16,7 @@
     <plugins>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <displayName>${pom.name}</displayName>
-          <description>${pom.description}</description>
-          <archive>
-            <manifestEntries>
-              <Specification-Title>${pom.name}</Specification-Title>
-              <Specification-Version>${pom.version}</Specification-Version>
-              <Specification-Vendor>${pom.organization.name}</Specification-Vendor>
-              <Implementation-Title>${pom.name}</Implementation-Title>
-              <Implementation-Version>${pom.version}</Implementation-Version>
-              <Implementation-Vendor-Id>${pom.groupId}</Implementation-Vendor-Id>
-              <Implementation-Vendor>${pom.organization.name}</Implementation-Vendor>
-              <Build-Time>${buildNumber}</Build-Time>
-            </manifestEntries>
-          </archive>
-        </configuration>
       </plugin>
     </plugins>
   </build>
-
-  <dependencies>
-  </dependencies>
 </project>
