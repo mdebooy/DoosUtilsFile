@@ -1,7 +1,7 @@
 /**
  * Copyright 2009 Marco de Booij
  *
- * Licensed under the EUPL, Version 1.0 or – as soon they will be approved by
+ * Licensed under the EUPL, Version 1.0 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * you may not use this work except in compliance with the Licence. You may
  * obtain a copy of the Licence at:
@@ -26,10 +26,10 @@ import java.util.List;
  * @author Marco de Booij
  */
 public class Arguments {
-  boolean                 valid       = true;
-  HashMap<String, String> arguments   = new HashMap<String, String>();
-  List<String>            parameters  = new ArrayList<String>();
-  List<String>            verplicht   = new ArrayList<String>();
+  private boolean                 valid       = true;
+  private HashMap<String, String> arguments   = new HashMap<String, String>();
+  private List<String>            parameters  = new ArrayList<String>();
+  private List<String>            verplicht   = new ArrayList<String>();
 
   public Arguments() {
   }
@@ -103,9 +103,9 @@ public class Arguments {
         } else {
           argument  = args[i].substring(1);
         }
-        if (argument.indexOf("=") > 0) {
-          key   = argument.substring(0, argument.indexOf("="));
-          value = argument.substring(argument.indexOf("=")+1);
+        if (argument.indexOf('=') > 0) {
+          key   = argument.substring(0, argument.indexOf('='));
+          value = argument.substring(argument.indexOf('=')+1);
         } else {
           key   = argument;
           if (i+1 < args.length
@@ -119,9 +119,9 @@ public class Arguments {
         arguments.put(key, value);
         continue;
       }
-      if (args[i].indexOf("=") > 0) {
-        key   = args[i].substring(0, args[i].indexOf("="));
-        value = args[i].substring(args[i].indexOf("=")+1);
+      if (args[i].indexOf('=') > 0) {
+        key   = args[i].substring(0, args[i].indexOf('='));
+        value = args[i].substring(args[i].indexOf('=')+1);
         arguments.put(key, value);
         continue;
       }

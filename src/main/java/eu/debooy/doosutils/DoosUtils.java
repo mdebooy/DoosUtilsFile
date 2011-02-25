@@ -1,8 +1,7 @@
-package eu.debooy.doosutils;
 /**
- * Copyright 2005 Marco de Booy
+ * Copyright 2005 Marco de Booij
  *
- * Licensed under the EUPL, Version 1.1 or – as soon they will be approved by
+ * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * you may not use this work except in compliance with the Licence. You may
  * obtain a copy of the Licence at:
@@ -15,24 +14,42 @@ package eu.debooy.doosutils;
  * See the Licence for the specific language governing permissions and
  * limitations under the Licence.
  */
-
+package eu.debooy.doosutils;
 
 
 /**
- * @author Marco de Booy
+ * @author Marco de Booij
  */
-public class DoosUtils {
+public final class DoosUtils {
+  private DoosUtils() {}
+
+  /**
+   * Is de parameter niet null of leeg?
+   * @param obj
+   * @return
+   */
   public static boolean isNotBlankOrNull(Object obj) {
     return obj != null && !obj.toString().trim().equals("");
   }
 
+  /**
+   * Is de parameter null of leeg?
+   * @param obj
+   * @return
+   */
   public static boolean isBlankOrNull(Object obj) {
     return obj == null || obj.toString().trim().equals("");
   }
 
+  /**
+   * Maak van een null String een lege String.
+   * @param string
+   * @return
+   */
   public static String nullToEmpty(String string) {
-    if (null == string)
+    if (null == string) {
       return "";
+    }
 
     return string;
   }

@@ -1,7 +1,7 @@
 /**
  * Copyright 2008 Marco de Booy
  *
- * Licensed under the EUPL, Version 1.1 or – as soon they will be approved by
+ * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * you may not use this work except in compliance with the Licence. You may
  * obtain a copy of the Licence at:
@@ -20,7 +20,9 @@ package eu.debooy.doosutils;
 /**
  * @author Marco de Booy
  */
-public class DoosConstants {
+public final class DoosConstants {
+  private DoosConstants() {}
+
   public static final int     BEFORE      = -1;
   public static final int     EQUAL       = 0;
   public static final int     AFTER       = 1;
