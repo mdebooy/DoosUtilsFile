@@ -34,4 +34,7 @@ public final class DoosConstants {
   public static final String  DATUM_TIJD  = "dd/MM/yyyy HH:mm:ss";
 
   public static final String  SMTP_HOST   = "smtp.debooy.eu";
+  
+  public static final String  EOL         =
+    System.getProperty("line.separator");
 }
