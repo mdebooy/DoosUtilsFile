@@ -21,5 +21,5 @@ package eu.debooy.doosutils;
  * @author Marco de Booij
  */
 public interface SortStrategy {
-  public  int sortingAlgorithm(Object obj1, Object obj2);
+  int sortingAlgorithm(Object obj1, Object obj2);
 }

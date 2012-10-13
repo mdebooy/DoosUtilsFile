@@ -43,6 +43,10 @@ public final class DoosUtils {
     return obj == null || obj.toString().trim().equals("");
   }
 
+  public static void naarScherm(String regel) {
+    System.out.println(regel); // NOPDM
+  }
+
   /**
    * Maak van een null String een lege String.
    * 

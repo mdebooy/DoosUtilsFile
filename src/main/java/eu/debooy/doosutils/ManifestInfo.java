@@ -17,6 +17,8 @@
 package eu.debooy.doosutils;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
@@ -69,14 +71,22 @@ public class ManifestInfo {
           new URL((new StringBuilder()).append(classContainer)
                                        .append("/META-INF/MANIFEST.MF")
                                        .toString());
-        manifest        = new Manifest(manifestUrl.openStream());
+        try {
+          manifest        = new Manifest(manifestUrl.openStream());
+        } catch (IOException e) {
+          buildVersion  = VERSION_UNSTABLE;
+          buildDate     = DATE_UNKNOWN;
+        }
+      } catch (IOException e) {
+        buildVersion  = VERSION_UNSTABLE;
+        buildDate     = DATE_UNKNOWN;
       }
       Attributes  attr  = manifest.getMainAttributes();
       buildVersion  = attr.getValue("Implementation-Version");
       buildDate     = attr.getValue("Build-Time");
-    } catch (Exception exc) {
-      buildVersion = VERSION_UNSTABLE;
-      buildDate = DATE_UNKNOWN;
+    } catch (MalformedURLException e) {
+      buildVersion  = VERSION_UNSTABLE;
+      buildDate     = DATE_UNKNOWN;
     }
   }
 

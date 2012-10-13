@@ -20,22 +20,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
  * @author Marco de Booij
  */
 public class Arguments {
-  private boolean                 valid       = true;
-  private HashMap<String, String> arguments   = new HashMap<String, String>();
-  private List<String>            parameters  = new ArrayList<String>();
-  private List<String>            verplicht   = new ArrayList<String>();
+  private boolean             valid       = true;
+  private Map<String, String> arguments   = new HashMap<String, String>();
+  private List<String>        parameters  = new ArrayList<String>();
+  private List<String>        verplicht   = new ArrayList<String>();
 
   public Arguments() {
   }
 
   public Arguments(String[] args) {
-    setArguments(args);
+    setArguments(Arrays.copyOf(args, args.length));
   }
 
   /**
@@ -147,11 +148,11 @@ public class Arguments {
     StringBuffer  result  = new StringBuffer();
     result.append("Arguments:");
     for (String key: arguments.keySet()) {
-      result.append(key + "=" + arguments.get(key) + "|");
+      result.append(key).append("=").append(arguments.get(key)).append("|");
     }
     result.append("Verplicht:");
     for (String key: verplicht) {
-      result.append(key + "|");
+      result.append(key).append("|");
     }
 
     return result.toString();

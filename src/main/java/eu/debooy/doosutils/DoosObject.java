@@ -16,6 +16,7 @@
  */
 package eu.debooy.doosutils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ import java.util.List;
  * @author Marco de Booij
  */
 public class DoosObject {
-  public static final String[] GET_METHODS_PREFIXES = {"get", "is"};
+  protected static final String[] GET_METHODS_PREFIXES = {"get", "is"};
 
   /**
    * Zoek alle 'getters'.
@@ -59,7 +60,6 @@ public class DoosObject {
     StringBuffer  sb        = new StringBuffer();
     String        attribute = null;
     Object        waarde    = null;
-    Object[]      arg       = null;
 
     sb.append(this.getClass().getSimpleName()).append(" (");
     for (Method method : findGetters()) {
@@ -74,7 +74,8 @@ public class DoosObject {
         attribute = attribute.substring(0, 1).toLowerCase()
                     + attribute.substring(1);
         sb.append(", ").append(attribute).append("=");
-        waarde = method.invoke(this, arg);
+        // Enkel voor methodes zonder parameter.
+        waarde = method.invoke(this);
         if (null != waarde) {
           if (waarde instanceof DoosObject) {
             // Geef enkel de naam van andere DoosObject.
@@ -86,7 +87,11 @@ public class DoosObject {
         } else {
           sb.append("<null>");
         }
-      } catch (Exception e) {
+      } catch (IllegalArgumentException e) {
+        // Enkel als de methode niet kan worden 'invoked'.
+      } catch (IllegalAccessException e) {
+        // Enkel als de methode niet kan worden 'invoked'.
+      } catch (InvocationTargetException e) {
         // Enkel als de methode niet kan worden 'invoked'.
       }
     }

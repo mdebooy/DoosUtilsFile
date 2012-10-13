@@ -29,21 +29,21 @@ public final class Banner {
    * Print de Banner.
    */
   public static void printBanner(String titel) {
-    System.out.println("+----------+----------+----------+----------+----------+----------+");
-    System.out.println("|          |          |");
-    System.out.println("|   |\\__   *   __/|   | " + titel);
-    System.out.println("|   /  .\\ *** /.   \\  |");
-    System.out.println("|  | ( _ \\ * / _ ) |  |");
-    System.out.println("+--|    \\_) (_/    |--+----------+----------+----------+----------+");
-    System.out.println("|  |    |     |    |  |");
-    System.out.println("|  /_____\\   /_____\\  |");
-    System.out.println("| [_______]_[_______] | E-Mail : marco.development@debooy.eu");
-    System.out.println("|       [_____]       | Website: http://www.debooy.eu");
-    System.out.println("+----------+----------+----------+----------+----------+----------+");
-    System.out.println(String.format("%66s", "v"
-                                             + manifestInfo.getBuildVersion()
-                                             + " | "
-                                             + manifestInfo.getBuildDate()));
-    System.out.println("");
+    DoosUtils.naarScherm("+----------+----------+----------+----------+----------+----------+");
+    DoosUtils.naarScherm("|          |          |");
+    DoosUtils.naarScherm("|   |\\__   *   __/|   | " + titel);
+    DoosUtils.naarScherm("|   /  .\\ *** /.   \\  |");
+    DoosUtils.naarScherm("|  | ( _ \\ * / _ ) |  |");
+    DoosUtils.naarScherm("+--|    \\_) (_/    |--+----------+----------+----------+----------+");
+    DoosUtils.naarScherm("|  |    |     |    |  |");
+    DoosUtils.naarScherm("|  /_____\\   /_____\\  |");
+    DoosUtils.naarScherm("| [_______]_[_______] | E-Mail : marco.development@debooy.eu");
+    DoosUtils.naarScherm("|       [_____]       | Website: http://www.debooy.eu");
+    DoosUtils.naarScherm("+----------+----------+----------+----------+----------+----------+");
+    DoosUtils.naarScherm(String.format("%66s", "v"
+                                               + manifestInfo.getBuildVersion()
+                                               + " | "
+                                               + manifestInfo.getBuildDate()));
+    DoosUtils.naarScherm("");
   }
 }
