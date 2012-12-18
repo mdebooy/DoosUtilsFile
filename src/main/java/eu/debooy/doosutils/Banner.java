@@ -29,18 +29,18 @@ public final class Banner {
    * Print de Banner.
    */
   public static void printBanner(String titel) {
-    DoosUtils.naarScherm("+----------+----------+----------+----------+----------+----------+");
+    DoosUtils.naarScherm("+----------+----------+----------+----------+----------+----------+----------+");
     DoosUtils.naarScherm("|          |          |");
     DoosUtils.naarScherm("|   |\\__   *   __/|   | " + titel);
     DoosUtils.naarScherm("|   /  .\\ *** /.   \\  |");
     DoosUtils.naarScherm("|  | ( _ \\ * / _ ) |  |");
-    DoosUtils.naarScherm("+--|    \\_) (_/    |--+----------+----------+----------+----------+");
+    DoosUtils.naarScherm("+--|    \\_) (_/    |--+----------+----------+----------+----------+----------+");
     DoosUtils.naarScherm("|  |    |     |    |  |");
     DoosUtils.naarScherm("|  /_____\\   /_____\\  |");
     DoosUtils.naarScherm("| [_______]_[_______] | E-Mail : marco.development@debooy.eu");
     DoosUtils.naarScherm("|       [_____]       | Website: http://www.debooy.eu");
-    DoosUtils.naarScherm("+----------+----------+----------+----------+----------+----------+");
-    DoosUtils.naarScherm(String.format("%66s", "v"
+    DoosUtils.naarScherm("+----------+----------+----------+----------+----------+----------+----------+");
+    DoosUtils.naarScherm(String.format("%77s", "v"
                                                + manifestInfo.getBuildVersion()
                                                + " | "
                                                + manifestInfo.getBuildDate()));

@@ -24,13 +24,12 @@ public final class DoosUtils {
   private DoosUtils() {}
 
   /**
-   * Is de parameter niet null of leeg?
+   * Schrijft een foutmelding op het scherm.
    * 
-   * @param obj
-   * @return
+   * @param regel
    */
-  public static boolean isNotBlankOrNull(Object obj) {
-    return obj != null && !obj.toString().trim().equals("");
+  public static void foutNaarScherm(String regel) {
+    System.out.println(regel); // NOPDM
   }
 
   /**
@@ -43,8 +42,65 @@ public final class DoosUtils {
     return obj == null || obj.toString().trim().equals("");
   }
 
+  /**
+   * Is de parameter niet null of leeg?
+   * 
+   * @param obj
+   * @return
+   */
+  public static boolean isNotBlankOrNull(Object obj) {
+    return obj != null && !obj.toString().trim().equals("");
+  }
+
+  /**
+   * Schrijft een lege regel op het scherm.
+   */
+  public static void naarScherm() {
+    naarScherm("");
+  }
+
+  /**
+   * Schrijft een melding op het scherm.
+   * 
+   * @param regel
+   */
   public static void naarScherm(String regel) {
-    System.out.println(regel); // NOPDM
+    System.out.println(regel);
+  }
+
+  /**
+   * Schrijf regel(s) van maxLengte op het scherm.
+   * 
+   * @param pString
+   * @param maxLengte
+   */
+  public static void naarScherm(String pString, int maxLengte) {
+    naarScherm("", pString, maxLengte);
+  }
+
+  /**
+   * Schrijf regel(s) van maxLengte op het scherm.
+   * 
+   * @param pBegin
+   * @param pString
+   * @param maxLengte
+   */
+  public static void naarScherm(String pBegin, String pString, int maxLengte) {
+    int     beginLengte   = pBegin.length();
+    int     splitsLengte  = maxLengte - beginLengte;
+    String  begin         = pBegin;
+    String  leeg          =
+        (beginLengte == 0 ? "" : String.format("%" + beginLengte +"s", " "));
+    String  string        = pString;
+
+    while (string.length() > splitsLengte) {
+      int splits  = string.substring(1, splitsLengte).lastIndexOf(" ");
+      DoosUtils.naarScherm(begin + string.substring(0, splits + 1));
+      begin   = leeg;
+      string  = string.substring(splits + 2);
+    }
+
+    DoosUtils.naarScherm(begin + string);
   }
 
   /**

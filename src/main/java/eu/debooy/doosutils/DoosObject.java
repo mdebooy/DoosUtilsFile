@@ -26,7 +26,7 @@ import java.util.List;
  * @author Marco de Booij
  */
 public class DoosObject {
-  protected static final String[] GET_METHODS_PREFIXES = {"get", "is"};
+  private static final String[] GET_METHODS_PREFIXES = {"get", "is"};
 
   /**
    * Zoek alle 'getters'.
