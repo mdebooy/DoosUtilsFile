@@ -29,7 +29,7 @@ public final class DoosUtils {
    * @param regel
    */
   public static void foutNaarScherm(String regel) {
-    System.out.println(regel); // NOPDM
+    System.out.println(regel);
   }
 
   /**
