@@ -81,9 +81,14 @@ public class ManifestInfo {
         buildVersion  = VERSION_UNSTABLE;
         buildDate     = DATE_UNKNOWN;
       }
-      Attributes  attr  = manifest.getMainAttributes();
-      buildVersion  = attr.getValue("Implementation-Version");
-      buildDate     = attr.getValue("Build-Time");
+      if (null == manifest) {
+        buildVersion  = VERSION_UNSTABLE;
+        buildDate     = DATE_UNKNOWN;
+      } else {
+        Attributes  attr  = manifest.getMainAttributes();
+        buildVersion  = attr.getValue("Implementation-Version");
+        buildDate     = attr.getValue("Build-Time");
+      }
     } catch (MalformedURLException e) {
       buildVersion  = VERSION_UNSTABLE;
       buildDate     = DATE_UNKNOWN;
