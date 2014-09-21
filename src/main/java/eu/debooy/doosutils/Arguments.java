@@ -145,7 +145,7 @@ public class Arguments {
    */
   @Override
   public String toString() {
-    StringBuffer  result  = new StringBuffer();
+    StringBuilder result  = new StringBuilder();
     result.append("Arguments:");
     for (String key: arguments.keySet()) {
       result.append(key).append("=").append(arguments.get(key)).append("|");
