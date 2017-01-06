@@ -7,10 +7,28 @@
   </parent>
   <groupId>eu.debooy.doosutils</groupId>
   <artifactId>doosutils-core</artifactId>
+  <packaging>jar</packaging>
   <version>2.0.0-SNAPSHOT</version>
   <name>Utility classes voor DOOS Applicaties (core)</name>
   <description>Core utility classes voor DOOS Applicaties.</description>
-  <packaging>jar</packaging>
+  <inceptionYear>2009</inceptionYear>
+  <scm>
+    <developerConnection>scm:svn:http://svn.debooy.eu/svn/doosutils/trunk/doosutils-core</developerConnection>
+    <connection>scm:svn:http://svn.debooy.eu/svn/doosutils/trunk/doosutils-core</connection>
+  </scm>
+
+  <developers>
+    <developer>
+      <name>Marco de Booij</name>
+      <id>booymar</id>
+      <email>marco.developer@debooy.eu</email>
+      <organization>DOOS</organization>
+      <roles>
+        <role>Project Manager</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+  </developers>
 
   <dependencies>
     <dependency>
