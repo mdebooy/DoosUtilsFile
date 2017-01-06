@@ -19,7 +19,6 @@ package eu.debooy.doosutils;
 import java.util.Locale;
 
 
-
 /**
  * @author Marco de Booij
  * 

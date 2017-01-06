@@ -19,6 +19,7 @@ package eu.debooy.doosutils;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -33,10 +34,9 @@ public class DoosObject {
    * 
    * @return
    */
-  protected Method[] findGetters() {
-    List<Method>  getters   = new ArrayList<Method>();
-    Method[]      methodes  = this.getClass().getMethods();
-    for (Method method : methodes) {
+  protected Collection<Method> findGetters() {
+    List<Method>  getters = new ArrayList<Method>();
+    for (Method method : this.getClass().getMethods()) {
       for (String prefix : GET_METHODS_PREFIXES) {
         if (method.getName().startsWith(prefix)) {
           if (method.getParameterTypes() == null
@@ -47,15 +47,13 @@ public class DoosObject {
         }
       }
     }
-    methodes = new Method[getters.size()];
 
-    return getters.toArray(methodes);
+    return getters;
   }
 
   /**
    * Maak een String van alle attributen die via een getter te benaderen zijn.
    */
-  @Override
   public String toString() {
     StringBuilder sb        = new StringBuilder();
     String        attribute = null;
@@ -89,10 +87,16 @@ public class DoosObject {
         }
       } catch (IllegalArgumentException e) {
         // Enkel als de methode niet kan worden 'invoked'.
+        sb.append("IllegalArgument: " + method.getName() + " - "
+                  + e.getLocalizedMessage());
       } catch (IllegalAccessException e) {
         // Enkel als de methode niet kan worden 'invoked'.
+        sb.append("IllegalAccess: " + method.getName() + " - "
+                  + e.getLocalizedMessage());
       } catch (InvocationTargetException e) {
         // Enkel als de methode niet kan worden 'invoked'.
+        sb.append("InvocationTarget: " + method.getName() + " - "
+                  + e.getLocalizedMessage());
       }
     }
     sb.append(")");

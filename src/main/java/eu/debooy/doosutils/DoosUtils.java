@@ -29,7 +29,7 @@ public final class DoosUtils {
    * @param regel
    */
   public static void foutNaarScherm(String regel) {
-    System.out.println(regel);
+    System.err.println(regel);
   }
 
   /**
@@ -112,6 +112,21 @@ public final class DoosUtils {
   public static String nullToEmpty(String string) {
     if (null == string) {
       return "";
+    }
+
+    return string;
+  }
+
+  /**
+   * Maak van een null String een lege String.
+   * 
+   * @param string
+   * @param waarde
+   * @return String
+   */
+  public static String nullToValue(String string, String waarde) {
+    if (null == string) {
+      return waarde;
     }
 
     return string;
