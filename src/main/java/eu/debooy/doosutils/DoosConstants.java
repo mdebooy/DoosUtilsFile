@@ -23,18 +23,19 @@ package eu.debooy.doosutils;
 public final class DoosConstants {
   private DoosConstants() {}
 
-  public static final int     BEFORE      = -1;
-  public static final int     EQUAL       = 0;
-  public static final int     AFTER       = 1;
+  public static final int     BEFORE        = -1;
+  public static final int     EQUAL         = 0;
+  public static final int     AFTER         = 1;
 
-  public static final String  ONWAAR      = "N";
-  public static final String  WAAR        = "J";
+  public static final String  ONWAAR        = "N";
+  public static final String  WAAR          = "J";
 
-  public static final String  DATUM       = "dd/MM/yyyy";
-  public static final String  DATUM_TIJD  = "dd/MM/yyyy HH:mm:ss";
+  public static final String  DATUM         = "dd/MM/yyyy";
+  public static final String  DATUM_TIJD    = "dd/MM/yyyy HH:mm:ss";
+  public static final String  SORTEERDATUM  = "yyyyDDD";
 
-  public static final String  SMTP_HOST   = "smtp.debooy.eu";
+  public static final String  SMTP_HOST     = "smtp.debooy.eu";
 
-  public static final String  EOL         =
+  public static final String  EOL           =
     System.getProperty("line.separator");
 }
