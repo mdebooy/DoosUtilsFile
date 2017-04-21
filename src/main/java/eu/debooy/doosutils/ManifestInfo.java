@@ -28,11 +28,13 @@ import java.util.jar.Manifest;
  * @author Marco de Booij
  */
 public class ManifestInfo {
-  private static final String    VERSION_UNSTABLE      = "UNSTABLE";
-  private static final String    DATE_UNKNOWN          = "UNKNOWN";
+  private static final String  DATE_UNKNOWN     = "UNKNOWN";
+  private static final String  LIB              = "/WEB-INF/lib";
+  private static final String  MANIFEST         = "/META-INF/MANIFEST.MF";
+  private static final String  VERSION_UNSTABLE = "UNSTABLE";
 
-  private static String          buildVersion;
-  private static String          buildDate;
+  private static String        buildVersion;
+  private static String        buildDate;
 
   static {
     buildDetails();
@@ -46,19 +48,17 @@ public class ManifestInfo {
                                               .getCodeSource()
                                               .getLocation().toString();
 
-      if (classContainer.indexOf("/WEB-INF/lib") >= 0) {
+      if (classContainer.indexOf(LIB) >= 0) {
         classContainer  =
-          classContainer.substring(0, classContainer.indexOf("/WEB-INF/lib"));
+          classContainer.substring(0, classContainer.indexOf(LIB));
         manifestUrl     =
-          new URL((new StringBuilder()).append(classContainer)
-                                       .append("/META-INF/MANIFEST.MF")
+          new URL((new StringBuilder()).append(classContainer).append(MANIFEST)
                                        .toString());
 
       } else {
         manifestUrl     =
-          new URL((new StringBuilder()).append("jar:")
-                                       .append(classContainer)
-                                       .append("!/META-INF/MANIFEST.MF")
+          new URL((new StringBuilder()).append("jar:").append(classContainer)
+                                       .append("!").append(MANIFEST)
                                        .toString());
 
       }
@@ -66,10 +66,9 @@ public class ManifestInfo {
         manifest  = new Manifest(manifestUrl.openStream());
       } catch (FileNotFoundException fnfe) {
         classContainer  =
-          classContainer.substring(0, classContainer.indexOf("/WEB-INF/lib"));
+          classContainer.substring(0, classContainer.indexOf(LIB));
         manifestUrl     =
-          new URL((new StringBuilder()).append(classContainer)
-                                       .append("/META-INF/MANIFEST.MF")
+          new URL((new StringBuilder()).append(classContainer).append(MANIFEST)
                                        .toString());
         try {
           manifest        = new Manifest(manifestUrl.openStream());
