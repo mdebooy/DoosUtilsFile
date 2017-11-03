@@ -6,15 +6,15 @@
     <version>2.2.2-SNAPSHOT</version>
   </parent>
   <groupId>eu.debooy.doosutils</groupId>
-  <artifactId>doosutils-core</artifactId>
+  <artifactId>doosutils-file</artifactId>
   <packaging>jar</packaging>
   <version>2.0.1-SNAPSHOT</version>
-  <name>Utility classes voor DOOS Applicaties (core)</name>
+  <name>Utility classes voor DOOS Applicaties (file)</name>
   <description>Core utility classes voor DOOS Applicaties.</description>
   <inceptionYear>2009</inceptionYear>
   <scm>
-    <developerConnection>scm:git:ssh://ptah.debooy.eu/srv/git/debooy/doosutils.git/doosutils-core</developerConnection>
-    <connection>scm:git:ssh://ptah.debooy.eu/srv/git/debooy/doosutils.git/doosutils-core</connection>
+    <developerConnection>scm:git:ssh://ptah.debooy.eu/srv/git/debooy/doosutils.git/doosutils-file</developerConnection>
+    <connection>scm:git:ssh://ptah.debooy.eu/srv/git/debooy/doosutils.git/doosutils-file</connection>
   </scm>
 
   <developers>
@@ -29,11 +29,4 @@
       </roles>
     </developer>
   </developers>
-
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-    </dependency>
-  </dependencies>
 </project>
