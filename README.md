@@ -1,3 +1,3 @@
-Dit project bevat algemene classes voor mijn Java applicaties.
+Dit project bevat algemene classes voor het werken met bestanden.
 
-This project contains common classes for my Java applications.
+This project contains common classes for working with files.
