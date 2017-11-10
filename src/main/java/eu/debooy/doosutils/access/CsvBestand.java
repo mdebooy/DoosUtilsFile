@@ -68,7 +68,7 @@ public class CsvBestand {
   }
 
   /**
-   * Sluit het bestand.
+   * @deprecated Gebruik de close() methode.
    */
   @Deprecated
   public void closeBestand() throws BestandException {
@@ -94,58 +94,34 @@ public class CsvBestand {
    }
  }
 
-  /**
-   * @return the charsetIn
-   */
   public String getCharsetIn() {
     return charsetIn;
   }
 
-  /**
-   * @return the delimiter
-   */
   public String getDelimiter() {
     return delimiter;
   }
 
-  /**
-   * @return the fieldSeparator
-   */
   public String getFieldSeparator() {
     return fieldSeparator;
   }
 
-  /**
-   * @return array met Kolom Namen.
-   */
   public String[] getKolomNamen() {
     return Arrays.copyOf(kolomNamen, kolomNamen.length);
   }
 
-  /**
-   * @return the lineSeparator
-   */
   public String getLineSeparator() {
     return lineSeparator;
   }
 
-  /**
-   * @return heeft nog een lijn?
-   */
   public boolean hasNext() {
     return !eof;
   }
 
-  /**
-   * @return End Of File?
-   */
   public boolean isEof() {
     return eof;
   }
 
-  /**
-   * @return array met de velden.
-   */
   public String[] next() throws BestandException {
     if (eof) {
       throw new BestandException("Lezen na EOF.");
@@ -166,10 +142,6 @@ public class CsvBestand {
     return velden;
   }
 
-  /**
-   * Open een CSV bestand.
-   * @param bestand  naam van het bestand
-   */
   private void openBestand(String bestand) throws BestandException {
     eof = false;
 
@@ -208,9 +180,8 @@ public class CsvBestand {
   }
 
   /**
-   * Open een CSV bestand.
-   * @param bestand   naam van het bestand
-   * @param charserIn characterset input
+   * @deprecated Gebruik de openBestand(String bestand) methode en de 
+   * setCharsetIn(String charsetIn) methode om de characterset te zetten.
    */
   @Deprecated
   protected void openBestand(String bestand, String charsetIn)
@@ -220,37 +191,22 @@ public class CsvBestand {
     openBestand(bestand);
   }
 
-  /**
-   * @param charsetIn the charsetIn to set
-   */
   public void setCharsetIn(String charsetIn) {
     this.charsetIn = charsetIn;
   }
 
-  /**
-   * @param delimiter the delimiter to set
-   */
   public void setDelimiter(String delimiter) {
     this.delimiter = delimiter;
   }
 
-  /**
-   * @param fieldSeparator the fieldSeparator to set
-   */
   public void setFieldSeparator(String fieldSeparator) {
     this.fieldSeparator = fieldSeparator;
   }
 
-  /**
-   * @param header the header to set
-   */
   public void setHeader(boolean header) {
     this.header = header;
   }
 
-  /**
-   * @param kolomNamen the kolomNamen to set
-   */
   public void setKolomNamen(String[] kolomNamen) {
     if (null == kolomNamen) { 
       this.kolomNamen = new String[0]; 
@@ -259,21 +215,12 @@ public class CsvBestand {
     }
   }
 
-  /**
-   * @param lineSeparator de lineSeparator to set
-   */
   public void setLineSeparator(String lineSeparator) {
     this.lineSeparator = lineSeparator;
   }
 
-  /**
-   * Splits de lijn op in de verschillende velden.
-   *  
-   * @param lijn
-   * @return
-   */
   private String[] splits(String lijn) {
-    String[]  hulp    = lijn.split(fieldSeparator);
+    String[]  hulp    = lijn.split(fieldSeparator, -1);
     String[]  velden  = new String[hulp.length];
     int i = 0;
     int j = 0;
