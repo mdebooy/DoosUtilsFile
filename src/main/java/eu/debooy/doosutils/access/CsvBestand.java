@@ -129,36 +129,44 @@ public class CsvBestand {
       return lineSeparator;
     }
 
-    public void setBestand(String bestand) {
+    public CsvBestandBuilder setBestand(String bestand) {
       this.bestand        = bestand;
+      return this;
     }
 
-    public void setCharsetIn(String charsetIn) {
+    public CsvBestandBuilder setCharsetIn(String charsetIn) {
       this.charsetIn      = charsetIn;
+      return this;
     }
 
-    public void setClassLoader(ClassLoader classLoader) {
+    public CsvBestandBuilder setClassLoader(ClassLoader classLoader) {
       this.classLoader    = classLoader;
+      return this;
     }
 
-    public void setDelimiter(String delimiter) {
+    public CsvBestandBuilder setDelimiter(String delimiter) {
       this.delimiter      = delimiter;
+      return this;
     }
 
-    public void setFieldSeparator(String fieldSeparator) {
+    public CsvBestandBuilder setFieldSeparator(String fieldSeparator) {
       this.fieldSeparator = fieldSeparator;
+      return this;
     }
 
-    public void setHeader(boolean header) {
+    public CsvBestandBuilder setHeader(boolean header) {
       this.header         = header;
+      return this;
     }
 
-    public void setKolomNamen(String[] kolomNamen) {
+    public CsvBestandBuilder setKolomNamen(String[] kolomNamen) {
       this.kolomNamen     = Arrays.copyOf(kolomNamen, kolomNamen.length);
+      return this;
     }
 
-    public void setLineSeparator(String lineSeparator) {
+    public CsvBestandBuilder setLineSeparator(String lineSeparator) {
       this.lineSeparator  = lineSeparator;
+      return this;
     }
   }
 
