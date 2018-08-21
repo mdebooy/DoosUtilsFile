@@ -25,7 +25,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,46 +48,125 @@ import java.util.regex.Pattern;
  *   bevatten.
  */
 public class CsvBestand {
-  private boolean         eof             = true;
-  private boolean         header          = true;
-  private BufferedReader  invoer          = null;
-  private String          delimiter       = "\"";
-  private String          fieldSeparator  = ",";
-  private String          charsetIn       = Charset.defaultCharset().name();
-  private String          lijn            = null;
-  private String          lineSeparator   =
-    System.getProperty("line.separator");
-  private String[]        kolomNamen      = null;
+  private static  ResourceBundle  resourceBundle  =
+      ResourceBundle.getBundle("ApplicatieResources", Locale.getDefault());
 
-  protected CsvBestand() {}
+  public static final String  ERR_DICHT              = "CSV-0002";
+  public static final String  ERR_EOF                = "CSV-0010";
+  public static final String  ERR_LEEG               = "CSV-0001";
+  public static final String  ERR_OPEN               = "CSV-0009";
 
-  public CsvBestand(String bestand) throws BestandException {
-    openBestand(bestand);
+  private final String      bestand;
+  private final String      charsetIn;
+  private final ClassLoader classLoader;
+  private final String      delimiter;
+  private final String      fieldSeparator;
+  private final boolean     header;
+  private final String      lineSeparator;
+
+  private BufferedReader  invoer;
+  private String[]        kolomNamen;
+  private String          lijn;
+
+  private CsvBestand(CsvBestandBuilder builder) throws BestandException {
+    bestand         = builder.getBestand();
+    charsetIn       = builder.getCharsetIn();
+    classLoader     = builder.getClassLoader();
+    delimiter       = builder.getDelimiter();
+    fieldSeparator  = builder.getFieldSeparator();
+    header          = builder.getHeader();
+    kolomNamen      = builder.getKolomNamen();
+    lineSeparator   = builder.getLineSeparator();
+
+    open();
   }
 
-  public CsvBestand(String bestand, String charsetIn) throws BestandException {
-    this.charsetIn  = charsetIn;
-    openBestand(bestand);
-  }
+  public static class CsvBestandBuilder {
+    private String      bestand         = "";
+    private String      charsetIn       = Charset.defaultCharset().name();
+    private ClassLoader classLoader     = null;;
+    private String      delimiter       = "\"";
+    private String      fieldSeparator  = ",";
+    private boolean     header          = true;
+    private String[]    kolomNamen      = new String[0];
+    private String      lineSeparator   = System.getProperty("line.separator");
 
-  /**
-   * @deprecated Gebruik de close() methode.
-   */
-  @Deprecated
-  public void closeBestand() throws BestandException {
-     if (null == invoer) {
-       throw new BestandException("Geen bestand open.");
-     }
+    public CsvBestandBuilder() {}
 
-     try {
-      invoer.close();
-    } catch (IOException e) {
-      throw new BestandException(e);
+    public CsvBestand build() throws BestandException {
+      return new CsvBestand(this);
+    }
+
+    public String getBestand() {
+      return bestand;
+    }
+
+    public String getCharsetIn() {
+      return charsetIn;
+    }
+
+    public ClassLoader getClassLoader() {
+      return classLoader;
+    }
+
+    public String getDelimiter() {
+      return delimiter;
+    }
+
+    public String getFieldSeparator() {
+      return fieldSeparator;
+    }
+
+    public boolean getHeader() {
+      return header;
+    }
+
+    public String[] getKolomNamen() {
+      return Arrays.copyOf(kolomNamen, kolomNamen.length);
+    }
+
+    public String getLineSeparator() {
+      return lineSeparator;
+    }
+
+    public void setBestand(String bestand) {
+      this.bestand        = bestand;
+    }
+
+    public void setCharsetIn(String charsetIn) {
+      this.charsetIn      = charsetIn;
+    }
+
+    public void setClassLoader(ClassLoader classLoader) {
+      this.classLoader    = classLoader;
+    }
+
+    public void setDelimiter(String delimiter) {
+      this.delimiter      = delimiter;
+    }
+
+    public void setFieldSeparator(String fieldSeparator) {
+      this.fieldSeparator = fieldSeparator;
+    }
+
+    public void setHeader(boolean header) {
+      this.header         = header;
+    }
+
+    public void setKolomNamen(String[] kolomNamen) {
+      this.kolomNamen     = Arrays.copyOf(kolomNamen, kolomNamen.length);
+    }
+
+    public void setLineSeparator(String lineSeparator) {
+      this.lineSeparator  = lineSeparator;
     }
   }
+
   public void close() throws BestandException {
     if (null == invoer) {
-      throw new BestandException("Geen bestand open.");
+      throw new BestandException(
+          MessageFormat.format(resourceBundle.getString(ERR_DICHT), ERR_DICHT,
+                               bestand));
     }
 
     try {
@@ -115,16 +197,17 @@ public class CsvBestand {
   }
 
   public boolean hasNext() {
-    return !eof;
+    return (null != lijn);
   }
 
   public boolean isEof() {
-    return eof;
+    return !hasNext();
   }
 
   public String[] next() throws BestandException {
-    if (eof) {
-      throw new BestandException("Lezen na EOF.");
+    if (isEof()) {
+      throw new BestandException(
+          MessageFormat.format(resourceBundle.getString(ERR_EOF), ERR_EOF));
     }
 
     String[]  velden  = splits(lijn);
@@ -135,23 +218,27 @@ public class CsvBestand {
       throw new BestandException(e);
     }
 
-    if (null == lijn) {
-      eof = true;
-    }
-
     return velden;
   }
 
-  private void openBestand(String bestand) throws BestandException {
-    eof = false;
+  public void open() throws BestandException {
+    if (null != invoer) {
+      throw new BestandException(
+          MessageFormat.format(resourceBundle.getString(ERR_OPEN), ERR_OPEN,
+                               bestand));
+    }
 
     try {
-      invoer  = new BufferedReader(
-                  new InputStreamReader(
-                    new FileInputStream (bestand), charsetIn));
-    } catch (UnsupportedEncodingException e) {
-      throw new BestandException(e);
-    } catch (FileNotFoundException e) {
+      if (null == classLoader) {
+        invoer  = new BufferedReader(
+                    new InputStreamReader(
+                      new FileInputStream (bestand), charsetIn));
+      } else {
+        invoer  = new BufferedReader(
+            new InputStreamReader(
+                classLoader.getResourceAsStream(bestand), charsetIn));
+      }
+    } catch (UnsupportedEncodingException | FileNotFoundException e) {
       throw new BestandException(e);
     }
 
@@ -162,8 +249,9 @@ public class CsvBestand {
     }
 
     if (null == lijn) {
-      eof = true;
-      throw new BestandException("Leeg bestand [" + bestand + "]");
+      throw new BestandException(
+          MessageFormat.format(resourceBundle.getString(ERR_LEEG), ERR_LEEG,
+                               bestand));
     }
 
     if (header) {
@@ -173,38 +261,7 @@ public class CsvBestand {
       } catch (IOException e) {
         throw new BestandException(e);
       }
-      if (null == lijn) {
-        eof = true;
-      }
     }
-  }
-
-  /**
-   * @deprecated Gebruik de openBestand(String bestand) methode en de 
-   * setCharsetIn(String charsetIn) methode om de characterset te zetten.
-   */
-  @Deprecated
-  protected void openBestand(String bestand, String charsetIn)
-      throws BestandException {
-    this.charsetIn  = charsetIn;
-
-    openBestand(bestand);
-  }
-
-  public void setCharsetIn(String charsetIn) {
-    this.charsetIn = charsetIn;
-  }
-
-  public void setDelimiter(String delimiter) {
-    this.delimiter = delimiter;
-  }
-
-  public void setFieldSeparator(String fieldSeparator) {
-    this.fieldSeparator = fieldSeparator;
-  }
-
-  public void setHeader(boolean header) {
-    this.header = header;
   }
 
   public void setKolomNamen(String[] kolomNamen) {
@@ -213,10 +270,6 @@ public class CsvBestand {
     } else { 
       this.kolomNamen = Arrays.copyOf(kolomNamen, kolomNamen.length); 
     }
-  }
-
-  public void setLineSeparator(String lineSeparator) {
-    this.lineSeparator = lineSeparator;
   }
 
   private String[] splits(String lijn) {
