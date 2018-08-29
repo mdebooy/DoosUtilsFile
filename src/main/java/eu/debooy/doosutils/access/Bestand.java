@@ -30,13 +30,70 @@ import java.io.LineNumberReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.text.MessageFormat;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 
 /**
  * @author Marco de Booij
  */
 public final class Bestand {
+  private static  ResourceBundle  resourceBundle  =
+      ResourceBundle.getBundle("DoosUtils-file", Locale.getDefault());
+
   private Bestand() {}
+
+  public static void copy(BufferedReader invoer, BufferedWriter uitvoer)
+      throws BestandException {
+    String  data;
+
+    try {
+      while (null != (data = invoer.readLine())) {
+        schrijfRegel(uitvoer, data);
+      }
+    } catch (IOException e) {
+      throw new BestandException(e);
+    }
+  }
+
+  public static void copy(File invoer, File uitvoer)
+      throws BestandException {
+    copy(openInvoerBestand(invoer), openUitvoerBestand(uitvoer));
+  }
+
+  public static void copy(String invoer, String uitvoer)
+      throws BestandException {
+    copy(openInvoerBestand(invoer), openUitvoerBestand(uitvoer));
+  }
+
+  public static boolean equals(BufferedReader bestandA, BufferedReader bestandB)
+      throws BestandException {
+    String  dataA;
+    String  dataB;
+
+    try {
+      while (null != (dataA = bestandA.readLine())) {
+        dataB = bestandB.readLine();
+        if (!dataA.equals(dataB)) {
+          return false;
+        }
+      }
+    } catch (IOException e) {
+      throw new BestandException(e);
+    }
+    return true;
+  }
+
+  public static boolean equals(File bestandA, File bestandB)
+      throws BestandException{
+    return equals(openInvoerBestand(bestandA), openInvoerBestand(bestandB));
+  }
+
+  public static boolean equals(String bestandA, String bestandB)
+      throws BestandException {
+    return equals(openInvoerBestand(bestandA), openInvoerBestand(bestandB));
+  }
 
   public static BufferedReader openInvoerBestand(File bestand)
       throws BestandException {
@@ -49,15 +106,25 @@ public final class Bestand {
                              Charset.defaultCharset().name());
   }
 
+  public static BufferedReader openInvoerBestand(ClassLoader classLoader,
+                                                 String bestand)
+      throws BestandException {
+    try {
+      return new BufferedReader(
+          new InputStreamReader(classLoader.getResourceAsStream(bestand),
+                                Charset.defaultCharset().name()));
+    } catch (UnsupportedEncodingException e) {
+      throw new BestandException(e);
+    }
+  }
+
   public static BufferedReader openInvoerBestand(File bestand, String charSet)
       throws BestandException {
     try {
       return new LineNumberReader(
           new InputStreamReader(
               new FileInputStream(bestand), charSet));
-    } catch (FileNotFoundException e) {
-      throw new BestandException(e);
-    } catch (UnsupportedEncodingException e) {
+    } catch (FileNotFoundException | UnsupportedEncodingException e) {
       throw new BestandException(e);
     }
   }
@@ -171,9 +238,7 @@ public final class Bestand {
       return new BufferedWriter(
                new OutputStreamWriter(
                  new FileOutputStream(bestand, append), charSet));
-    } catch (FileNotFoundException e) {
-      throw new BestandException(e);
-    } catch (UnsupportedEncodingException e) {
+    } catch (FileNotFoundException | UnsupportedEncodingException e) {
       throw new BestandException(e);
     }
   }
@@ -190,22 +255,6 @@ public final class Bestand {
                                                   boolean append)
       throws BestandException {
     return openUitvoerBestand(new File(bestand), charSet, append);
-  }
-
-  public static boolean verwijderDirectory(File directory) {
-    if (directory.exists()) {
-      for (File file : directory.listFiles()) {
-        if (file.isDirectory()) {
-          verwijderDirectory(file);
-        } else {
-          if (!file.delete()) {
-            return false;
-          }
-        }
-      }
-    }
-
-    return directory.delete();
   }
 
   /**
@@ -237,7 +286,55 @@ public final class Bestand {
     }
   }
 
+  public static void delete(File bestand) throws BestandException {
+    if (!bestand.exists()) {
+      throw new BestandException(MessageFormat.format(
+          resourceBundle.getString(BestandConstants.ERR_BEST_ONBEKEND),
+                                                      bestand.getName()));
+    }
+
+    if (bestand.isDirectory()) {
+      for (File file : bestand.listFiles()) {
+        delete(file);
+      }
+    } else {
+      if (!bestand.delete()) {
+        throw new BestandException(MessageFormat.format(
+            resourceBundle.getString(BestandConstants.ERR_BEST_VERWIJDER),
+                                                        bestand.getName()));
+      }
+    }
+  }
+
+  public static void delete(String bestand) throws BestandException {
+    delete(new File(bestand));
+  }
+
+  /**
+   * @deprecated Gebruik delete(File directory)
+   **/
+  @Deprecated
+  public static boolean verwijderDirectory(File directory) {
+    try {
+      delete(directory);
+    } catch (BestandException e) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * @deprecated Gebruik delete(String directory)
+   **/
+  @Deprecated
   public static boolean verwijderDirectory(String directory) {
-    return verwijderDirectory(new File(directory));
+    try {
+      delete(new File(directory));
+    } catch (BestandException e) {
+      return false;
+    }
+
+    return true;
   }
 }

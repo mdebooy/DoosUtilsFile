@@ -17,6 +17,7 @@
 package eu.debooy.doosutils.access;
 
 import eu.debooy.doosutils.exception.BestandException;
+import eu.debooy.doosutils.access.BestandConstants;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -49,12 +50,7 @@ import java.util.regex.Pattern;
  */
 public class CsvBestand {
   private static  ResourceBundle  resourceBundle  =
-      ResourceBundle.getBundle("ApplicatieResources", Locale.getDefault());
-
-  public static final String  ERR_DICHT              = "CSV-0002";
-  public static final String  ERR_EOF                = "CSV-0010";
-  public static final String  ERR_LEEG               = "CSV-0001";
-  public static final String  ERR_OPEN               = "CSV-0009";
+      ResourceBundle.getBundle("DoosUtils-file", Locale.getDefault());
 
   private final String      bestand;
   private final String      charsetIn;
@@ -84,7 +80,7 @@ public class CsvBestand {
   public static class CsvBestandBuilder {
     private String      bestand         = "";
     private String      charsetIn       = Charset.defaultCharset().name();
-    private ClassLoader classLoader     = null;;
+    private ClassLoader classLoader     = null;
     private String      delimiter       = "\"";
     private String      fieldSeparator  = ",";
     private boolean     header          = true;
@@ -172,9 +168,9 @@ public class CsvBestand {
 
   public void close() throws BestandException {
     if (null == invoer) {
-      throw new BestandException(
-          MessageFormat.format(resourceBundle.getString(ERR_DICHT), ERR_DICHT,
-                               bestand));
+      throw new BestandException(MessageFormat.format(
+          resourceBundle.getString(BestandConstants.ERR_BEST_DICHT),
+                                                      bestand));
     }
 
     try {
@@ -215,7 +211,7 @@ public class CsvBestand {
   public String[] next() throws BestandException {
     if (isEof()) {
       throw new BestandException(
-          MessageFormat.format(resourceBundle.getString(ERR_EOF), ERR_EOF));
+          resourceBundle.getString(BestandConstants.ERR_BEST_EOF));
     }
 
     String[]  velden  = splits(lijn);
@@ -231,9 +227,9 @@ public class CsvBestand {
 
   public void open() throws BestandException {
     if (null != invoer) {
-      throw new BestandException(
-          MessageFormat.format(resourceBundle.getString(ERR_OPEN), ERR_OPEN,
-                               bestand));
+      throw new BestandException(MessageFormat.format(
+          resourceBundle.getString(BestandConstants.ERR_BEST_OPEN),
+                                                      bestand));
     }
 
     try {
@@ -257,9 +253,9 @@ public class CsvBestand {
     }
 
     if (null == lijn) {
-      throw new BestandException(
-          MessageFormat.format(resourceBundle.getString(ERR_LEEG), ERR_LEEG,
-                               bestand));
+      throw new BestandException(MessageFormat.format(
+          resourceBundle.getString(BestandConstants.ERR_BEST_LEEG),
+                                                      bestand));
     }
 
     if (header) {
