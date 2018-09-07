@@ -64,7 +64,7 @@ public class CsvBestand {
   private String[]        kolomNamen;
   private String          lijn;
 
-  private CsvBestand(CsvBestandBuilder builder) throws BestandException {
+  private CsvBestand(Builder builder) throws BestandException {
     bestand         = builder.getBestand();
     charsetIn       = builder.getCharsetIn();
     classLoader     = builder.getClassLoader();
@@ -77,7 +77,7 @@ public class CsvBestand {
     open();
   }
 
-  public static class CsvBestandBuilder {
+  public static final class Builder {
     private String      bestand         = "";
     private String      charsetIn       = Charset.defaultCharset().name();
     private ClassLoader classLoader     = null;
@@ -87,7 +87,7 @@ public class CsvBestand {
     private String[]    kolomNamen      = new String[0];
     private String      lineSeparator   = System.getProperty("line.separator");
 
-    public CsvBestandBuilder() {}
+    public Builder() {}
 
     public CsvBestand build() throws BestandException {
       return new CsvBestand(this);
@@ -125,42 +125,42 @@ public class CsvBestand {
       return lineSeparator;
     }
 
-    public CsvBestandBuilder setBestand(String bestand) {
+    public Builder setBestand(String bestand) {
       this.bestand        = bestand;
       return this;
     }
 
-    public CsvBestandBuilder setCharsetIn(String charsetIn) {
+    public Builder setCharsetIn(String charsetIn) {
       this.charsetIn      = charsetIn;
       return this;
     }
 
-    public CsvBestandBuilder setClassLoader(ClassLoader classLoader) {
+    public Builder setClassLoader(ClassLoader classLoader) {
       this.classLoader    = classLoader;
       return this;
     }
 
-    public CsvBestandBuilder setDelimiter(String delimiter) {
+    public Builder setDelimiter(String delimiter) {
       this.delimiter      = delimiter;
       return this;
     }
 
-    public CsvBestandBuilder setFieldSeparator(String fieldSeparator) {
+    public Builder setFieldSeparator(String fieldSeparator) {
       this.fieldSeparator = fieldSeparator;
       return this;
     }
 
-    public CsvBestandBuilder setHeader(boolean header) {
+    public Builder setHeader(boolean header) {
       this.header         = header;
       return this;
     }
 
-    public CsvBestandBuilder setKolomNamen(String[] kolomNamen) {
+    public Builder setKolomNamen(String[] kolomNamen) {
       this.kolomNamen     = Arrays.copyOf(kolomNamen, kolomNamen.length);
       return this;
     }
 
-    public CsvBestandBuilder setLineSeparator(String lineSeparator) {
+    public Builder setLineSeparator(String lineSeparator) {
       this.lineSeparator  = lineSeparator;
       return this;
     }

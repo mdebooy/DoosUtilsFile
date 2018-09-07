@@ -16,7 +16,6 @@
  */
 package eu.debooy.doosutils.access;
 
-import eu.debooy.doosutils.DoosUtils;
 import eu.debooy.doosutils.exception.BestandException;
 
 import java.io.BufferedReader;
@@ -51,7 +50,7 @@ public class TekstBestand {
   private BufferedWriter  uitvoer;
   private String          lijn;
 
-  private TekstBestand(TekstBestandBuilder builder) throws BestandException {
+  private TekstBestand(Builder builder) throws BestandException {
     append      = builder.getAppend();
     bestand     = builder.getBestand();
     charset     = builder.getCharset();
@@ -61,14 +60,14 @@ public class TekstBestand {
     open();
   }
 
-  public static class TekstBestandBuilder {
+  public static final class Builder {
     private boolean     append      = false;
     private String      bestand     = "";
     private String      charset     = Charset.defaultCharset().name();
     private ClassLoader classLoader = null;
     private boolean     lezen       = true;
 
-    public TekstBestandBuilder() {}
+    public Builder() {}
 
     public TekstBestand build() throws BestandException {
       return new TekstBestand(this);
@@ -94,29 +93,35 @@ public class TekstBestand {
       return lezen;
     }
 
-    public TekstBestandBuilder setAppend(boolean append) {
+    public Builder setAppend(boolean append) {
       this.append       = append;
       return this;
     }
 
-    public TekstBestandBuilder setBestand(String bestand) {
+    public Builder setBestand(String bestand) {
       this.bestand      = bestand;
       return this;
     }
 
-    public TekstBestandBuilder setCharset(String charset) {
+    public Builder setCharset(String charset) {
       this.charset      = charset;
       return this;
     }
 
-    public TekstBestandBuilder setClassLoader(ClassLoader classLoader) {
+    public Builder setClassLoader(ClassLoader classLoader) {
       this.classLoader  = classLoader;
       return this;
     }
 
-    public TekstBestandBuilder setLezen(boolean lezen) {
+    public Builder setLezen(boolean lezen) {
       this.lezen        = lezen;
       return this;
+    }
+  }
+
+  public void add(TekstBestand bron) throws BestandException {
+    while (bron.hasNext()) {
+      write(bron.next());
     }
   }
 
@@ -129,15 +134,20 @@ public class TekstBestand {
     }
 
     try {
-     invoer.close();
+      if (null != invoer) {
+        invoer.close();
+      }
+      if (null != uitvoer) {
+        uitvoer.close();
+      }
    } catch (IOException e) {
      throw new BestandException(e);
    }
  }
 
   public String getBestand() {
-    if (DoosUtils.isBlankOrNull(bestand)) {
-      return classLoader.toString();
+    if (null != classLoader) {
+      return "CLASSPATH/" + bestand;
     }
 
     return bestand;
