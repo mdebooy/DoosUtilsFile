@@ -17,13 +17,15 @@
 package eu.debooy.doosutils.access;
 
 import eu.debooy.doosutils.exception.BestandException;
-import eu.debooy.doosutils.access.BestandConstants;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
@@ -52,39 +54,52 @@ public class CsvBestand {
   private static  ResourceBundle  resourceBundle  =
       ResourceBundle.getBundle("DoosUtils-file", Locale.getDefault());
 
+  private final boolean     append;
   private final String      bestand;
-  private final String      charsetIn;
+  private final String      charset;
   private final ClassLoader classLoader;
   private final String      delimiter;
   private final String      fieldSeparator;
   private final boolean     header;
   private final String      lineSeparator;
+  private final boolean     lezen;
 
   private BufferedReader  invoer;
+  private BufferedWriter  uitvoer;
   private String[]        kolomNamen;
   private String          lijn;
+  private long            lijnen;
 
   private CsvBestand(Builder builder) throws BestandException {
+    append          = builder.isAppend();
     bestand         = builder.getBestand();
-    charsetIn       = builder.getCharsetIn();
+    charset         = builder.getCharset();
     classLoader     = builder.getClassLoader();
     delimiter       = builder.getDelimiter();
     fieldSeparator  = builder.getFieldSeparator();
-    header          = builder.getHeader();
+    header          = builder.hasHeader();
     kolomNamen      = builder.getKolomNamen();
+    lezen           = builder.isReadOnly();
     lineSeparator   = builder.getLineSeparator();
+
+    if (!isAppend() && header && kolomNamen.length == 0) {
+      throw new BestandException(
+          resourceBundle.getString(BestandConstants.ERR_CSV_GEEN_KOLOMMEN));
+    }
 
     open();
   }
 
   public static final class Builder {
+    private boolean     append          = false;
     private String      bestand         = "";
-    private String      charsetIn       = Charset.defaultCharset().name();
+    private String      charset         = Charset.defaultCharset().name();
     private ClassLoader classLoader     = null;
     private String      delimiter       = "\"";
     private String      fieldSeparator  = ",";
     private boolean     header          = true;
     private String[]    kolomNamen      = new String[0];
+    private boolean     lezen           = true;
     private String      lineSeparator   = System.getProperty("line.separator");
 
     public Builder() {}
@@ -97,8 +112,8 @@ public class CsvBestand {
       return bestand;
     }
 
-    public String getCharsetIn() {
-      return charsetIn;
+    public String getCharset() {
+      return charset;
     }
 
     public ClassLoader getClassLoader() {
@@ -113,10 +128,6 @@ public class CsvBestand {
       return fieldSeparator;
     }
 
-    public boolean getHeader() {
-      return header;
-    }
-
     public String[] getKolomNamen() {
       return Arrays.copyOf(kolomNamen, kolomNamen.length);
     }
@@ -125,13 +136,30 @@ public class CsvBestand {
       return lineSeparator;
     }
 
+    public boolean hasHeader() {
+      return header;
+    }
+
+    public boolean isAppend() {
+      return append;
+    }
+
+    public boolean isReadOnly() {
+      return lezen;
+    }
+
+    public Builder setAppend(boolean append) {
+      this.append       = append;
+      return this;
+    }
+
     public Builder setBestand(String bestand) {
       this.bestand        = bestand;
       return this;
     }
 
-    public Builder setCharsetIn(String charsetIn) {
-      this.charsetIn      = charsetIn;
+    public Builder setCharset(String charset) {
+      this.charset        = charset;
       return this;
     }
 
@@ -160,6 +188,11 @@ public class CsvBestand {
       return this;
     }
 
+    public Builder setLezen(boolean lezen) {
+      this.lezen        = lezen;
+      return this;
+    }
+
     public Builder setLineSeparator(String lineSeparator) {
       this.lineSeparator  = lineSeparator;
       return this;
@@ -167,21 +200,39 @@ public class CsvBestand {
   }
 
   public void close() throws BestandException {
-    if (null == invoer) {
+    if (null == invoer
+        && null == uitvoer) {
       throw new BestandException(MessageFormat.format(
           resourceBundle.getString(BestandConstants.ERR_BEST_DICHT),
-                                                      bestand));
+                                                      getBestand()));
     }
 
     try {
-     invoer.close();
+      if (null != invoer) {
+        invoer.close();
+      }
+      if (null != uitvoer) {
+        uitvoer.close();
+      }
    } catch (IOException e) {
      throw new BestandException(e);
    }
  }
 
-  public String getCharsetIn() {
-    return charsetIn;
+  public String getBestand() {
+    if (null != classLoader) {
+      return "CLASSPATH/" + bestand;
+    }
+
+    return bestand;
+  }
+
+  public String getCharset() {
+    return charset;
+  }
+
+  public ClassLoader getClassLoader() {
+    return classLoader;
   }
 
   public String getDelimiter() {
@@ -200,12 +251,24 @@ public class CsvBestand {
     return lineSeparator;
   }
 
+  public boolean hasHeading() {
+    return header;
+  }
+
   public boolean hasNext() {
     return (null != lijn);
   }
 
+  public boolean isAppend() {
+    return append;
+  }
+
   public boolean isEof() {
     return !hasNext();
+  }
+
+  public boolean isReadOnly() {
+    return lezen;
   }
 
   public String[] next() throws BestandException {
@@ -214,7 +277,17 @@ public class CsvBestand {
           resourceBundle.getString(BestandConstants.ERR_BEST_EOF));
     }
 
+    lijnen++;
+
     String[]  velden  = splits(lijn);
+
+    if (velden.length != kolomNamen.length) {
+      throw new BestandException(MessageFormat.format(
+          resourceBundle.getString(BestandConstants.ERR_CSV_KOLOM_AANTAL),
+                                                      velden.length,
+                                                      kolomNamen.length,
+                                                      lijnen));
+    }
 
     try {
       lijn = invoer.readLine();
@@ -226,53 +299,90 @@ public class CsvBestand {
   }
 
   public void open() throws BestandException {
-    if (null != invoer) {
+    lijnen  = 0;
+    if (null != invoer
+        || null != uitvoer) {
       throw new BestandException(MessageFormat.format(
           resourceBundle.getString(BestandConstants.ERR_BEST_OPEN),
-                                                      bestand));
+                                                      getBestand()));
     }
 
     try {
       if (null == classLoader) {
-        invoer  = new BufferedReader(
-                    new InputStreamReader(
-                      new FileInputStream (bestand), charsetIn));
+        if (lezen) {
+          invoer  = new BufferedReader(
+                      new InputStreamReader(
+                        new FileInputStream (bestand), charset));
+        } else {
+          if (isAppend() && hasHeading()) {
+            BufferedReader  head  = new BufferedReader(
+                new InputStreamReader(
+                    new FileInputStream (bestand), charset));
+            String[]  headr = splits(head.readLine());
+            head.close();
+            if (kolomNamen.length == 0) {
+              kolomNamen  = Arrays.copyOf(headr, headr.length);
+            } else {
+              if (!Arrays.equals(headr, kolomNamen)) {
+                throw new BestandException(
+                    resourceBundle.getString(
+                        BestandConstants.ERR_CSV_KOLOM_FOUT));
+              }
+            }
+          }
+
+          uitvoer = new BufferedWriter(
+                      new OutputStreamWriter(
+                        new FileOutputStream(bestand, append), charset));
+        }
       } else {
-        invoer  = new BufferedReader(
-            new InputStreamReader(
-                classLoader.getResourceAsStream(bestand), charsetIn));
+        if (lezen) {
+          invoer  = new BufferedReader(
+                      new InputStreamReader(
+                          classLoader.getResourceAsStream(bestand), charset));
+        } else {
+          throw new BestandException(
+              resourceBundle.getString(BestandConstants.ERR_CLP_READONLY));
+        }
       }
     } catch (UnsupportedEncodingException | FileNotFoundException e) {
       throw new BestandException(e);
-    }
-
-    try {
-      lijn  = invoer.readLine();
     } catch (IOException e) {
       throw new BestandException(e);
     }
 
-    if (null == lijn) {
-      throw new BestandException(MessageFormat.format(
-          resourceBundle.getString(BestandConstants.ERR_BEST_LEEG),
-                                                      bestand));
-    }
-
-    if (header) {
-      kolomNamen  = splits(lijn);
+    if (lezen) {
       try {
         lijn  = invoer.readLine();
       } catch (IOException e) {
         throw new BestandException(e);
       }
-    }
-  }
-
-  public void setKolomNamen(String[] kolomNamen) {
-    if (null == kolomNamen) { 
-      this.kolomNamen = new String[0]; 
-    } else { 
-      this.kolomNamen = Arrays.copyOf(kolomNamen, kolomNamen.length); 
+    
+      if (null == lijn) {
+        throw new BestandException(MessageFormat.format(
+            resourceBundle.getString(BestandConstants.ERR_BEST_LEEG),
+                                                        getBestand()));
+      }
+    
+      if (header) {
+        kolomNamen  = splits(lijn);
+        try {
+          lijn  = invoer.readLine();
+          if (null == lijn) {
+            throw new BestandException(MessageFormat.format(
+                resourceBundle.getString(BestandConstants.ERR_BEST_LEEG),
+                                                            getBestand()));
+          }
+        } catch (IOException e) {
+          throw new BestandException(e);
+        }
+      } else {
+        kolomNamen  = new String[splits(lijn).length];
+      }
+    } else {
+      if (!isAppend() && kolomNamen.length > 0) {
+        write((Object[])kolomNamen);
+      }
     }
   }
 
@@ -300,7 +410,7 @@ public class CsvBestand {
       j++;
     }
 
-    return velden;    
+    return Arrays.copyOf(velden, j);    
   }
 
   private boolean testVeld(String veld) {
@@ -320,5 +430,53 @@ public class CsvBestand {
     }
 
     return false;
+  }
+
+  public void write(Object... kolommen) throws BestandException {
+    if (lezen) {
+      throw new BestandException(MessageFormat.format(
+          resourceBundle.getString(BestandConstants.ERR_BEST_READONLY),
+                                                      getBestand()));
+    }
+    lijnen++;
+    if (header && kolommen.length != kolomNamen.length) {
+      throw new BestandException(MessageFormat.format(
+          resourceBundle.getString(BestandConstants.ERR_CSV_KOLOM_AANTAL),
+                                                      kolommen.length,
+                                                      kolomNamen.length,
+                                                      lijnen));
+    }
+
+    StringBuilder lijn  = new StringBuilder();
+
+    for (Object kolom : kolommen) {
+      if (null == kolom) {
+        lijn.append(fieldSeparator);
+      } else {
+        if (kolom instanceof String) {
+          if (((String) kolom).contains(fieldSeparator)
+              || ((String) kolom).contains(delimiter)
+              || ((String) kolom).contains(lineSeparator)) {
+            lijn.append(fieldSeparator).append(delimiter)
+                .append(((String) kolom).replaceAll(delimiter,
+                                                    delimiter + delimiter))
+                .append(delimiter);
+          } else {
+            lijn.append(fieldSeparator).append(kolom);
+          }
+        } else {
+          lijn.append(fieldSeparator).append(kolom);
+        }
+      }
+    }
+
+    try {
+      if (lijn.length() > 0) {
+        uitvoer.write(lijn.toString().substring(fieldSeparator.length()));
+      }
+      uitvoer.newLine();
+    } catch (IOException e) {
+      throw new BestandException(e);
+    }
   }
 }

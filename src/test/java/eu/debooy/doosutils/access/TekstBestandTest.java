@@ -36,8 +36,8 @@ import org.junit.Test;
  * @author Marco de Booij
  */
 public class TekstBestandTest {
-  protected static final  ResourceBundle  resourceBundle  =
-      ResourceBundle.getBundle("DoosUtils-file", new Locale("nl"));
+  protected static  ResourceBundle  resourceBundle;
+
   protected static final  String          TEMP            =
       System.getProperty("java.io.tmpdir");
   protected static final  ClassLoader     CLASSLOADER     =
@@ -51,6 +51,9 @@ public class TekstBestandTest {
   @BeforeClass
   public static void beforeClass() throws BestandException {
     Locale.setDefault(new Locale("nl"));
+    resourceBundle   = ResourceBundle.getBundle("DoosUtils-file",
+                                                Locale.getDefault());
+
     TekstBestand        bron  = null;
     TekstBestand        doel  = null;
     try {

@@ -51,11 +51,11 @@ public class TekstBestand {
   private String          lijn;
 
   private TekstBestand(Builder builder) throws BestandException {
-    append      = builder.getAppend();
+    append      = builder.isAppend();
     bestand     = builder.getBestand();
     charset     = builder.getCharset();
     classLoader = builder.getClassLoader();
-    lezen       = builder.getLezen();
+    lezen       = builder.isReadOnly();
 
     open();
   }
@@ -73,10 +73,6 @@ public class TekstBestand {
       return new TekstBestand(this);
     }
 
-    public boolean getAppend() {
-      return append;
-    }
-
     public String getBestand() {
       return bestand;
     }
@@ -89,7 +85,11 @@ public class TekstBestand {
       return classLoader;
     }
 
-    public boolean getLezen() {
+    public boolean isAppend() {
+      return append;
+    }
+
+    public boolean isReadOnly() {
       return lezen;
     }
 
