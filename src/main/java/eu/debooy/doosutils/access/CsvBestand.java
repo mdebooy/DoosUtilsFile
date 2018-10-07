@@ -82,12 +82,12 @@ public class CsvBestand {
     lezen           = builder.isReadOnly();
     lineSeparator   = builder.getLineSeparator();
 
-    if (!isAppend() && header && kolomNamen.length == 0) {
+    open();
+
+    if (header && kolomNamen.length == 0) {
       throw new BestandException(
           resourceBundle.getString(BestandConstants.ERR_CSV_GEEN_KOLOMMEN));
     }
-
-    open();
   }
 
   public static final class Builder {

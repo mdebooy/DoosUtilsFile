@@ -136,12 +136,8 @@ public class CsvBestandTest {
       csvBestand  = new CsvBestand.Builder().setClassLoader(CLASSLOADER)
                                             .setBestand("testheading.csv")
                                             .build();
-      fail("InvoerHeadingUitClasspath - Toch heading :-(");
     } catch (BestandException e) {
-      assertEquals("InvoerUitDirectory - Toch geschreven",
-                   resourceBundle.getString(
-                       BestandConstants.ERR_CSV_GEEN_KOLOMMEN),
-                   e.getMessage());
+      assertTrue(e.getMessage(), false);
     }
 
     try {
