@@ -140,10 +140,10 @@ public class TekstBestand {
       if (null != uitvoer) {
         uitvoer.close();
       }
-   } catch (IOException e) {
-     throw new BestandException(e);
-   }
- }
+    } catch (IOException e) {
+      throw new BestandException(e);
+    }
+  }
 
   public String getBestand() {
     if (null != classLoader) {
