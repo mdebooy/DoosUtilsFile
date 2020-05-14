@@ -36,6 +36,8 @@ public class BestandConstants {
   public static final String  ERR_CSV_KOLOM_AANTAL  = "csv.kolommen.ongelijk";
   public static final String  ERR_CSV_KOLOM_FOUT    = "csv.kolommen.foutief";
 
+  public static final String  ERR_JSON_ERROR        = "json.fout";
+
   public static final String  ERR_MAP_FOUT          = "map.fout";
   public static final String  ERR_MAP_ONBEKEND      = "map.onbekend";
 }
