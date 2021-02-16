@@ -17,7 +17,6 @@
 package eu.debooy.doosutils.access;
 
 import eu.debooy.doosutils.exception.BestandException;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
@@ -30,7 +29,7 @@ import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
-
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -40,7 +39,7 @@ import org.json.simple.parser.ParseException;
  * @author Marco de Booij
  */
 public class JsonBestand {
-  private static  ResourceBundle  resourceBundle  =
+  private static final  ResourceBundle  resourceBundle  =
       ResourceBundle.getBundle("DoosUtils-file", Locale.getDefault());
 
   private final boolean     append;
@@ -153,6 +152,26 @@ public class JsonBestand {
     } catch (IOException e) {
       throw new BestandException(e);
     }
+  }
+
+  public boolean containsKey(String sleutel) {
+    return json.containsKey(sleutel);
+  }
+
+  public Object get(String sleutel) {
+    if (json.containsKey(sleutel)) {
+      return json.get(sleutel);
+    }
+
+    return new Object();
+  }
+
+  public JSONArray getArray(String sleutel) {
+    if (json.containsKey(sleutel)) {
+      return (JSONArray) json.get(sleutel);
+    }
+
+    return new JSONArray();
   }
 
   public String getBestand() {
