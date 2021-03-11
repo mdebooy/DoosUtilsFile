@@ -16,19 +16,16 @@
  */
 package eu.debooy.doosutils.access;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import eu.debooy.doosutils.exception.BestandException;
-
 import java.io.File;
 import java.util.Locale;
 import java.util.ResourceBundle;
-
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -130,18 +127,14 @@ public class JsonBestandTest {
       jsonBestand = new JsonBestand.Builder().setClassLoader(CLASSLOADER)
                                              .setBestand("testUitvoer.json")
                                              .build();
+      assertFalse("append", jsonBestand.isAppend());
+      assertFalse("prettify", jsonBestand.isPrettify());
+      assertTrue("lezen", jsonBestand.isReadOnly());
+      assertEquals(json, jsonBestand.read().toJSONString());
     } catch (BestandException e) {
       assertTrue(e.getMessage(), false);
-    }
-    assertFalse("append", jsonBestand.isAppend());
-//    assertFalse("prettify", jsonBestand.isPrettify());
-    assertTrue("lezen", jsonBestand.isReadOnly());
-    assertEquals(json, jsonBestand.read().toJSONString());
-
-    try {
+    } finally {
       jsonBestand.close();
-    } catch (BestandException e) {
-      assertTrue(e.getMessage(), false);
     }
   }
 
@@ -153,19 +146,52 @@ public class JsonBestandTest {
                                    .setClassLoader(CLASSLOADER)
                                    .setBestand("testPrettyUitvoer.json")
                                    .build();
+      assertFalse("append", jsonBestand.isAppend());
+      assertFalse("prettify", jsonBestand.isPrettify());
+      assertTrue("lezen", jsonBestand.isReadOnly());
+      assertEquals(json, jsonBestand.read().toJSONString());
     } catch (BestandException e) {
       assertTrue(e.getMessage(), false);
+    } finally {
+      if (null != jsonBestand) {
+        jsonBestand.close();
+      }
     }
-    assertFalse("append", jsonBestand.isAppend());
-//    assertFalse("prettify", jsonBestand.isPrettify());
-    assertTrue("lezen", jsonBestand.isReadOnly());
-    assertEquals(json, jsonBestand.read().toJSONString());
+  }
 
+  @Test
+  public void testPrettyUitvoer() throws BestandException {
+    JsonBestand jsonBestand = null;
     try {
-      jsonBestand.close();
+      jsonBestand = new JsonBestand.Builder().setBestand(TEMP + File.separator
+                                                        + "testUitvoer.json")
+                                             .setLezen(false)
+                                             .build();
+      jsonBestand.write(JSONSTRING);
+      assertFalse("append", jsonBestand.isAppend());
+      assertFalse("prettify", jsonBestand.isPrettify());
+      assertFalse("lezen", jsonBestand.isReadOnly());
     } catch (BestandException e) {
       assertTrue(e.getMessage(), false);
+    } finally {
+      if (null != jsonBestand) {
+        jsonBestand.close();
+      }
     }
+
+    jsonBestand = new JsonBestand.Builder().setBestand(TEMP + File.separator
+                                                       + "testUitvoer.json")
+                                           .setLezen(true)
+                                           .build();
+    JsonBestand jsonGoed  =
+        new JsonBestand.Builder().setClassLoader(CLASSLOADER)
+                                 .setBestand("testPrettyUitvoer.json")
+                                 .setLezen(true)
+                                 .build();
+    assertEquals("Uitvoer", jsonGoed.read().toJSONString(),
+                            jsonBestand.read().toJSONString());
+
+    Bestand.delete(TEMP + File.separator + "testUitvoer.json");
   }
 
   @Test
@@ -175,26 +201,20 @@ public class JsonBestandTest {
       jsonBestand = new JsonBestand.Builder().setBestand(TEMP + File.separator
                                                         + "testUitvoer.json")
                                              .setLezen(false)
+                                             .setPrettify(true)
                                              .build();
-    } catch (BestandException e) {
-      assertTrue(e.getMessage(), false);
-    }
-
-    try {
       jsonBestand.write(JSONSTRING);
+      assertFalse("append", jsonBestand.isAppend());
+      assertTrue("prettify", jsonBestand.isPrettify());
+      assertFalse("lezen", jsonBestand.isReadOnly());
     } catch (BestandException e) {
       assertTrue(e.getMessage(), false);
+    } finally {
+      if (null != jsonBestand) {
+        jsonBestand.close();
+      }
     }
 
-    try {
-      jsonBestand.close();
-    } catch (BestandException e) {
-      assertTrue(e.getMessage(), false);
-    }
-
-    assertFalse("append", jsonBestand.isAppend());
-//    assertFalse("prettify", jsonBestand.isPrettify());
-    assertFalse("lezen", jsonBestand.isReadOnly());
     jsonBestand = new JsonBestand.Builder().setBestand(TEMP + File.separator
                                                        + "testUitvoer.json")
                                            .setLezen(true)

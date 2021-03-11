@@ -47,7 +47,7 @@ public class JsonBestand {
   private final String      charset;
   private final ClassLoader classLoader;
   private final boolean     lezen;
-//  private final boolean     prettify;
+  private final boolean     prettify;
 
   private BufferedReader  invoer;
   private JSONObject      json;
@@ -59,14 +59,14 @@ public class JsonBestand {
     charset     = builder.getCharset();
     classLoader = builder.getClassLoader();
     lezen       = builder.isReadOnly();
-//    prettify    = builder.isPrettify();
+    prettify    = builder.isPrettify();
 
     open();
   }
 
   public static final class Builder {
     private boolean     append      = false;
-//    private boolean     prettify    = false;
+    private boolean     prettify    = false;
     private String      bestand     = "";
     private String      charset     = "UTF-8";
     private ClassLoader classLoader = null;
@@ -93,10 +93,10 @@ public class JsonBestand {
     public boolean isAppend() {
       return append;
     }
-//
-//    public boolean isPrettify() {
-//      return prettify;
-//    }
+
+    public boolean isPrettify() {
+      return prettify;
+    }
 
     public boolean isReadOnly() {
       return lezen;
@@ -126,11 +126,11 @@ public class JsonBestand {
       this.lezen        = lezen;
       return this;
     }
-//
-//    public Builder setPrettify(boolean prettify) {
-//      this.prettify     = prettify;
-//      return this;
-//    }
+
+    public Builder setPrettify(boolean prettify) {
+      this.prettify     = prettify;
+      return this;
+    }
   }
 
   public void close() throws BestandException {
@@ -146,7 +146,11 @@ public class JsonBestand {
         invoer.close();
       }
       if (null != uitvoer) {
-        json.writeJSONString(uitvoer);
+        if (isPrettify()) {
+          prettifyJson(json, uitvoer);
+        } else {
+          json.writeJSONString(uitvoer);
+        }
         uitvoer.close();
       }
     } catch (IOException e) {
@@ -186,19 +190,29 @@ public class JsonBestand {
     return charset;
   }
 
+  private static String getIndent(int tabCount) {
+    StringBuilder builder = new StringBuilder();
+
+    for (int j = 0; j < tabCount; j++) {
+      builder.append("  ");
+    }
+
+    return builder.toString();
+  }
+
   public boolean isAppend() {
     return append;
   }
-//
-//  public boolean isPrettify() {
-//    return prettify;
-//  }
+
+  public boolean isPrettify() {
+    return prettify;
+  }
 
   public boolean isReadOnly() {
     return lezen;
   }
 
-  public void open() throws BestandException {
+  public final void open() throws BestandException {
     if (null != invoer
         || null != uitvoer) {
       throw new BestandException(MessageFormat.format(
@@ -238,6 +252,45 @@ public class JsonBestand {
     if (lezen) {
       readBestand();
     }
+  }
+
+  private void prettifyJson(JSONObject json, BufferedWriter uitvoer)
+      throws IOException {
+    char[]        inputChar = json.toJSONString().toCharArray();
+    StringBuilder regel     = new StringBuilder();
+    int           tabCount  = 0;
+
+    for (int i = 0; i < inputChar.length; i++) {
+      String  charI = String.valueOf(inputChar[i]);
+      if (charI.equals("}") || charI.equals("]")) {
+        tabCount--;
+        if (!String.valueOf(inputChar[i - 1]).equals("[")
+            && !String.valueOf(inputChar[i - 1]).equals("{")) {
+        uitvoer.write(regel.toString());
+        regel = new StringBuilder(getIndent(tabCount));
+        }
+      }
+      regel.append(charI);
+
+      if (charI.equals("{") || charI.equals("[")) {
+        tabCount++;
+        if (String.valueOf(inputChar[i + 1]).equals("]")
+            || String.valueOf(inputChar[i + 1]).equals("}")) {
+          continue;
+        }
+
+        uitvoer.write(regel.toString());
+        regel = new StringBuilder(getIndent(tabCount));
+      }
+
+      if (charI.equals(",")
+          && String.valueOf(inputChar[i - 1]).equals("\"")
+          && !String.valueOf(inputChar[i - 2]).equals("\\")) {
+        uitvoer.write(regel.toString());
+        regel = new StringBuilder(getIndent(tabCount));
+      }
+    }
+    uitvoer.write(regel.toString());
   }
 
   public JSONObject read() {
