@@ -1,10 +1,13 @@
 {
-  "id" : 1,
-  "naam" : "Jan",
-  "prijs" : 123.5,
-  "tags" : [ "Aap", "Noot" ],
-  "voorraad" : {
-    "magazijn" : 300,
-    "winkel" : 20
-  }
+  "voor,raad": {
+    "win\"kel": 20,
+    "magazijn": 300
+  },
+  "id": 1,
+  "naam": "Jan",
+  "prijs": 123.5,
+  "tags": [
+    "Aap",
+    "Noot"
+  ]
 }

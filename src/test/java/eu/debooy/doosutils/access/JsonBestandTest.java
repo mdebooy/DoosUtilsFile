@@ -18,6 +18,7 @@ package eu.debooy.doosutils.access;
 
 import eu.debooy.doosutils.exception.BestandException;
 import java.io.File;
+import java.io.IOException;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import org.json.simple.JSONObject;
@@ -37,17 +38,20 @@ public class JsonBestandTest {
   protected static  ResourceBundle  resourceBundle;
   protected static  String          json;
 
-  protected static final  String          TEMP            =
-      System.getProperty("java.io.tmpdir");
-  protected static final  ClassLoader     CLASSLOADER     =
+  protected static final  String      BST_UITVOER       = "testUitvoer.json";
+  protected static final  String      BST_PRETTYUITVOER =
+      "testPrettyUitvoer.json";
+  protected static final  ClassLoader CLASSLOADER       =
       JsonBestand.class.getClassLoader();
-  protected static final  String          JSONSTRING      =
+  protected static final  String      JSONSTRING        =
       "{\"id\":1,\"naam\":\"Jan\",\"prijs\":123.5," +
        "\"tags\":[\"Aap\",\"Noot\"]," +
-       "\"voorraad\":{\"magazijn\":300," +
-                     "\"winkel\":20}}";
-  protected static final  String          JSONSTRING2     =
+       "\"voor,raad\":{\"magazijn\":300," +
+                     "\"win\\\"kel\":20}}";
+  protected static final  String      JSONSTRING2       =
       "{\"id\":2,\"naam\":\"Piet\"}";
+  protected static final  String      TEMP              =
+      System.getProperty("java.io.tmpdir");
 
   @BeforeClass
   public static void beforeClass() throws BestandException, ParseException {
@@ -125,16 +129,18 @@ public class JsonBestandTest {
     JsonBestand jsonBestand = null;
     try {
       jsonBestand = new JsonBestand.Builder().setClassLoader(CLASSLOADER)
-                                             .setBestand("testUitvoer.json")
+                                             .setBestand(BST_UITVOER)
                                              .build();
-      assertFalse("append", jsonBestand.isAppend());
-      assertFalse("prettify", jsonBestand.isPrettify());
-      assertTrue("lezen", jsonBestand.isReadOnly());
+      assertFalse("Invoer - append", jsonBestand.isAppend());
+      assertFalse("Invoer - prettify", jsonBestand.isPrettify());
+      assertTrue("Invoer - lezen", jsonBestand.isReadOnly());
       assertEquals(json, jsonBestand.read().toJSONString());
     } catch (BestandException e) {
       assertTrue(e.getMessage(), false);
     } finally {
-      jsonBestand.close();
+      if (null != jsonBestand) {
+        jsonBestand.close();
+      }
     }
   }
 
@@ -144,11 +150,11 @@ public class JsonBestandTest {
     try {
       jsonBestand = new JsonBestand.Builder()
                                    .setClassLoader(CLASSLOADER)
-                                   .setBestand("testPrettyUitvoer.json")
+                                   .setBestand(BST_PRETTYUITVOER)
                                    .build();
-      assertFalse("append", jsonBestand.isAppend());
-      assertFalse("prettify", jsonBestand.isPrettify());
-      assertTrue("lezen", jsonBestand.isReadOnly());
+      assertFalse("Pretty Invoer - append", jsonBestand.isAppend());
+      assertFalse("Pretty Invoer - prettify", jsonBestand.isPrettify());
+      assertTrue("Pretty Invoer - lezen", jsonBestand.isReadOnly());
       assertEquals(json, jsonBestand.read().toJSONString());
     } catch (BestandException e) {
       assertTrue(e.getMessage(), false);
@@ -160,17 +166,18 @@ public class JsonBestandTest {
   }
 
   @Test
-  public void testPrettyUitvoer() throws BestandException {
+  public void testPrettyUitvoer() throws BestandException, IOException {
     JsonBestand jsonBestand = null;
     try {
       jsonBestand = new JsonBestand.Builder().setBestand(TEMP + File.separator
-                                                        + "testUitvoer.json")
+                                                        + BST_UITVOER)
                                              .setLezen(false)
+                                             .setPrettify(true)
                                              .build();
       jsonBestand.write(JSONSTRING);
-      assertFalse("append", jsonBestand.isAppend());
-      assertFalse("prettify", jsonBestand.isPrettify());
-      assertFalse("lezen", jsonBestand.isReadOnly());
+      assertFalse("Pretty Uitvoer - append", jsonBestand.isAppend());
+      assertTrue("Pretty Uitvoer - prettify", jsonBestand.isPrettify());
+      assertFalse("Pretty Uitvoer - lezen", jsonBestand.isReadOnly());
     } catch (BestandException e) {
       assertTrue(e.getMessage(), false);
     } finally {
@@ -179,19 +186,14 @@ public class JsonBestandTest {
       }
     }
 
-    jsonBestand = new JsonBestand.Builder().setBestand(TEMP + File.separator
-                                                       + "testUitvoer.json")
-                                           .setLezen(true)
-                                           .build();
-    JsonBestand jsonGoed  =
-        new JsonBestand.Builder().setClassLoader(CLASSLOADER)
-                                 .setBestand("testPrettyUitvoer.json")
-                                 .setLezen(true)
-                                 .build();
-    assertEquals("Uitvoer", jsonGoed.read().toJSONString(),
-                            jsonBestand.read().toJSONString());
+    assertTrue("Pretty Uitvoer - equals",
+        Bestand.equals(
+            Bestand.openInvoerBestand(TEMP + File.separator
+                                      + BST_UITVOER),
+            Bestand.openInvoerBestand(JsonBestandTest.class.getClassLoader(),
+                                      BST_PRETTYUITVOER)));
 
-    Bestand.delete(TEMP + File.separator + "testUitvoer.json");
+    Bestand.delete(TEMP + File.separator + BST_UITVOER);
   }
 
   @Test
@@ -199,14 +201,13 @@ public class JsonBestandTest {
     JsonBestand jsonBestand = null;
     try {
       jsonBestand = new JsonBestand.Builder().setBestand(TEMP + File.separator
-                                                        + "testUitvoer.json")
+                                                        + BST_UITVOER)
                                              .setLezen(false)
-                                             .setPrettify(true)
                                              .build();
       jsonBestand.write(JSONSTRING);
-      assertFalse("append", jsonBestand.isAppend());
-      assertTrue("prettify", jsonBestand.isPrettify());
-      assertFalse("lezen", jsonBestand.isReadOnly());
+      assertFalse("Uitvoer - append", jsonBestand.isAppend());
+      assertFalse("Uitvoer - prettify", jsonBestand.isPrettify());
+      assertFalse("Uitvoer - lezen", jsonBestand.isReadOnly());
     } catch (BestandException e) {
       assertTrue(e.getMessage(), false);
     } finally {
@@ -216,17 +217,17 @@ public class JsonBestandTest {
     }
 
     jsonBestand = new JsonBestand.Builder().setBestand(TEMP + File.separator
-                                                       + "testUitvoer.json")
+                                                       + BST_UITVOER)
                                            .setLezen(true)
                                            .build();
     JsonBestand jsonGoed  =
         new JsonBestand.Builder().setClassLoader(CLASSLOADER)
-                                 .setBestand("testUitvoer.json")
+                                 .setBestand(BST_UITVOER)
                                  .setLezen(true)
                                  .build();
-    assertEquals("Uitvoer", jsonGoed.read().toJSONString(),
+    assertEquals("Uitvoer - Uitvoer", jsonGoed.read().toJSONString(),
                             jsonBestand.read().toJSONString());
 
-    Bestand.delete(TEMP + File.separator + "testUitvoer.json");
+    Bestand.delete(TEMP + File.separator + BST_UITVOER);
   }
 }
