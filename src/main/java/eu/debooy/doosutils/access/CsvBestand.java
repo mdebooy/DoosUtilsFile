@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 Marco de Booij
+ * Copyright (c) 2011 Marco de Booij
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
@@ -17,16 +17,13 @@
 package eu.debooy.doosutils.access;
 
 import eu.debooy.doosutils.exception.BestandException;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.util.Arrays;
@@ -38,7 +35,7 @@ import java.util.regex.Pattern;
 
 /**
  * @author Marco de Booij
- * 
+ *
  * Voor een CSV bestand telt:
  * - Velden die een komma, aanhalingsteken of regeleinde bevatten moeten
  *   tussen aanhalingstekens gezet worden.
@@ -51,7 +48,7 @@ import java.util.regex.Pattern;
  *   bevatten.
  */
 public class CsvBestand {
-  private static  ResourceBundle  resourceBundle  =
+  private static final  ResourceBundle  resourceBundle  =
       ResourceBundle.getBundle("DoosUtils-file", Locale.getDefault());
 
   private final boolean     append;
@@ -298,7 +295,7 @@ public class CsvBestand {
     return velden;
   }
 
-  public void open() throws BestandException {
+  public final void open() throws BestandException {
     lijnen  = 0;
     if (null != invoer
         || null != uitvoer) {
@@ -345,8 +342,6 @@ public class CsvBestand {
               resourceBundle.getString(BestandConstants.ERR_CLP_READONLY));
         }
       }
-    } catch (UnsupportedEncodingException | FileNotFoundException e) {
-      throw new BestandException(e);
     } catch (IOException e) {
       throw new BestandException(e);
     }
@@ -357,13 +352,13 @@ public class CsvBestand {
       } catch (IOException e) {
         throw new BestandException(e);
       }
-    
+
       if (null == lijn) {
         throw new BestandException(MessageFormat.format(
             resourceBundle.getString(BestandConstants.ERR_BEST_LEEG),
                                                         getBestand()));
       }
-    
+
       if (header) {
         kolomNamen  = splits(lijn);
         try {
@@ -410,7 +405,7 @@ public class CsvBestand {
       j++;
     }
 
-    return Arrays.copyOf(velden, j);    
+    return Arrays.copyOf(velden, j);
   }
 
   private boolean testVeld(String veld) {
@@ -447,32 +442,32 @@ public class CsvBestand {
                                                       lijnen));
     }
 
-    StringBuilder lijn  = new StringBuilder();
+    StringBuilder regel = new StringBuilder();
 
     for (Object kolom : kolommen) {
       if (null == kolom) {
-        lijn.append(fieldSeparator);
+        regel.append(fieldSeparator);
       } else {
         if (kolom instanceof String) {
           if (((String) kolom).contains(fieldSeparator)
               || ((String) kolom).contains(delimiter)
               || ((String) kolom).contains(lineSeparator)) {
-            lijn.append(fieldSeparator).append(delimiter)
-                .append(((String) kolom).replaceAll(delimiter,
+            regel.append(fieldSeparator).append(delimiter)
+                 .append(((String) kolom).replaceAll(delimiter,
                                                     delimiter + delimiter))
                 .append(delimiter);
           } else {
-            lijn.append(fieldSeparator).append(kolom);
+            regel.append(fieldSeparator).append(kolom);
           }
         } else {
-          lijn.append(fieldSeparator).append(kolom);
+          regel.append(fieldSeparator).append(kolom);
         }
       }
     }
 
     try {
-      if (lijn.length() > 0) {
-        uitvoer.write(lijn.toString().substring(fieldSeparator.length()));
+      if (regel.length() > 0) {
+        uitvoer.write(regel.toString().substring(fieldSeparator.length()));
       }
       uitvoer.newLine();
     } catch (IOException e) {
