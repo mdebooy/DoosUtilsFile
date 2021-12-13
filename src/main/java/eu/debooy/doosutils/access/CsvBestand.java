@@ -47,7 +47,7 @@ import java.util.regex.Pattern;
  * - De eerste regel in een CSV bestand mag de namen van elk van de kolommen
  *   bevatten.
  */
-public class CsvBestand {
+public class CsvBestand implements AutoCloseable {
   private static final  ResourceBundle  resourceBundle  =
       ResourceBundle.getBundle("DoosUtils-file", Locale.getDefault());
 
@@ -196,6 +196,7 @@ public class CsvBestand {
     }
   }
 
+  @Override
   public void close() throws BestandException {
     if (null == invoer
         && null == uitvoer) {

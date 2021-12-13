@@ -38,7 +38,7 @@ import org.json.simple.parser.ParseException;
 /**
  * @author Marco de Booij
  */
-public class JsonBestand {
+public class JsonBestand implements AutoCloseable {
   private static final  ResourceBundle  resourceBundle  =
       ResourceBundle.getBundle("DoosUtils-file", Locale.getDefault());
 
@@ -133,12 +133,12 @@ public class JsonBestand {
     }
   }
 
+  @Override
   public void close() throws BestandException {
     if (null == invoer
         && null == uitvoer) {
       throw new BestandException(MessageFormat.format(
-          resourceBundle.getString(BestandConstants.ERR_BEST_DICHT),
-                                                      bestand));
+          resourceBundle.getString(BestandConstants.ERR_BEST_DICHT), bestand));
     }
 
     try {
@@ -193,7 +193,7 @@ public class JsonBestand {
   private static String getIndent(int tabCount) {
     StringBuilder builder = new StringBuilder();
 
-    for (int j = 0; j < tabCount; j++) {
+    for (var j = 0; j < tabCount; j++) {
       builder.append("  ");
     }
 
@@ -221,29 +221,9 @@ public class JsonBestand {
 
     try {
       if (null == classLoader) {
-        if (lezen || append) {
-          invoer  = new BufferedReader(
-                      new InputStreamReader(
-                        new FileInputStream (bestand), charset));
-        }
-        if (append) {
-          readBestand();
-          close();
-        }
-        if (!lezen) {
-          uitvoer = new BufferedWriter(
-                      new OutputStreamWriter(
-                        new FileOutputStream(bestand), charset));
-        }
+        openBestand();
       } else {
-        if (lezen) {
-          invoer  = new BufferedReader(
-                      new InputStreamReader(
-                          classLoader.getResourceAsStream(bestand), charset));
-        } else {
-          throw new BestandException(
-              resourceBundle.getString(BestandConstants.ERR_CLP_READONLY));
-        }
+        openInClasspath();
       }
     } catch (UnsupportedEncodingException | FileNotFoundException e) {
       throw new BestandException(e);
@@ -254,14 +234,44 @@ public class JsonBestand {
     }
   }
 
+  private void openBestand() throws BestandException,
+      FileNotFoundException, UnsupportedEncodingException  {
+    if (lezen || append) {
+      invoer  = new BufferedReader(
+                  new InputStreamReader(
+                    new FileInputStream (bestand), charset));
+    }
+    if (append) {
+      readBestand();
+      close();
+    }
+    if (!lezen) {
+      uitvoer = new BufferedWriter(
+                  new OutputStreamWriter(
+                    new FileOutputStream(bestand), charset));
+    }
+  }
+
+  private void openInClasspath()
+      throws BestandException, UnsupportedEncodingException {
+    if (lezen) {
+      invoer  = new BufferedReader(
+                  new InputStreamReader(
+                      classLoader.getResourceAsStream(bestand), charset));
+    } else {
+      throw new BestandException(
+          resourceBundle.getString(BestandConstants.ERR_CLP_READONLY));
+    }
+  }
+
   private void prettifyJson(JSONObject json, BufferedWriter uitvoer)
       throws IOException {
-    char[]        inputChar = json.toJSONString().toCharArray();
-    boolean       inString  = false;
-    StringBuilder regel     = new StringBuilder();
-    int           tabCount  = 0;
+    var inputChar = json.toJSONString().toCharArray();
+    var inString  = false;
+    var regel     = new StringBuilder();
+    var tabCount  = 0;
 
-    for (int i = 0; i < inputChar.length; i++) {
+    for (var i = 0; i < inputChar.length; i++) {
       String  teken = String.valueOf(inputChar[i]);
 
       if (inString) {
@@ -321,7 +331,7 @@ public class JsonBestand {
           bestand));
     }
 
-    JSONParser  parser  = new JSONParser();
+    var parser  = new JSONParser();
     try {
       json = (JSONObject) parser.parse(invoer);
     } catch (IOException | ParseException e) {
@@ -338,7 +348,7 @@ public class JsonBestand {
   }
 
   public void write(String node) throws BestandException {
-    JSONParser  parser  = new JSONParser();
+    var parser  = new JSONParser();
     try {
       json  = (JSONObject) parser.parse(node);
     } catch (ParseException e) {

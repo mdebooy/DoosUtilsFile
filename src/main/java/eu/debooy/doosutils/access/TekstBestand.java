@@ -17,7 +17,6 @@
 package eu.debooy.doosutils.access;
 
 import eu.debooy.doosutils.exception.BestandException;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
@@ -36,8 +35,8 @@ import java.util.ResourceBundle;
 /**
  * @author Marco de Booij
  */
-public class TekstBestand {
-  private static  ResourceBundle  resourceBundle  =
+public class TekstBestand implements AutoCloseable {
+  private static final  ResourceBundle  resourceBundle  =
       ResourceBundle.getBundle("DoosUtils-file", Locale.getDefault());
 
   private final boolean     append;
@@ -125,6 +124,7 @@ public class TekstBestand {
     }
   }
 
+  @Override
   public void close() throws BestandException {
     if (null == invoer
         && null == uitvoer) {

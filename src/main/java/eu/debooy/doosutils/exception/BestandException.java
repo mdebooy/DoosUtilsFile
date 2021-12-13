@@ -23,24 +23,14 @@ package eu.debooy.doosutils.exception;
 public class BestandException extends Exception {
   private static final  long  serialVersionUID  = 1L;
 
-  /**
-   * @param message Explanation of the exception
-   */
   public BestandException(String message) {
     super(message);
   }
 
-  /**
-   * @param cause   Cause of the exception
-   */
   public BestandException(Throwable cause) {
     super(cause);
   }
 
-  /**
-   * @param message Explanation of the exception
-   * @param cause   Cause of the exception
-   */
   public BestandException(String message, Throwable cause) {
     super(message, cause);
   }
