@@ -17,7 +17,6 @@
 package eu.debooy.doosutils.access;
 
 import eu.debooy.doosutils.exception.BestandException;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -39,7 +38,7 @@ import java.util.ResourceBundle;
  * @author Marco de Booij
  */
 public final class Bestand {
-  private static  ResourceBundle  resourceBundle  =
+  private static final  ResourceBundle  resourceBundle  =
       ResourceBundle.getBundle("DoosUtils-file", Locale.getDefault());
 
   private Bestand() {}
@@ -153,54 +152,22 @@ public final class Bestand {
     }
   }
 
-  /**
-   * Open een bestand als uitvoer.
-   * 
-   * @param bestand
-   * @return
-   * @throws BestandException
-   */
   public static BufferedWriter openUitvoerBestand(File bestand)
       throws BestandException {
     return openUitvoerBestand(bestand, Charset.defaultCharset().name(), false);
   }
 
-  /**
-   * Open een bestand als uitvoer. Als append true is wordt er aan het einde van
-   * het bestand geschreven.
-   * 
-   * @param bestand
-   * @param append
-   * @return
-   * @throws BestandException
-   */
   public static BufferedWriter openUitvoerBestand(File bestand, boolean append)
       throws BestandException {
     return openUitvoerBestand(bestand, Charset.defaultCharset().name(), append);
   }
 
-  /**
-   * Open een bestand als uitvoer.
-   * 
-   * @param bestand
-   * @return
-   * @throws BestandException
-   */
   public static BufferedWriter openUitvoerBestand(String bestand)
       throws BestandException {
     return openUitvoerBestand(new File(bestand),
                               Charset.defaultCharset().name(), false);
   }
 
-  /**
-   * Open een bestand als uitvoer. Als append true is wordt er aan het einde van
-   * het bestand geschreven.
-   * 
-   * @param bestand
-   * @param append
-   * @return
-   * @throws BestandException
-   */
   public static BufferedWriter openUitvoerBestand(String bestand,
                                                   boolean append)
       throws BestandException {
@@ -208,29 +175,11 @@ public final class Bestand {
                               Charset.defaultCharset().name(), append);
   }
 
-  /**
-   * Open een bestand als uitvoer.
-   * 
-   * @param bestand
-   * @param charSet
-   * @return
-   * @throws BestandException
-   */
   public static BufferedWriter openUitvoerBestand(File bestand, String charSet)
       throws BestandException {
     return openUitvoerBestand(bestand, charSet, false);
   }
 
-  /**
-   * Open een bestand als uitvoer. Als append true is wordt er aan het einde van
-   * het bestand geschreven.
-   * 
-   * @param bestand
-   * @param charSet
-   * @param append
-   * @return
-   * @throws BestandException
-   */
   public static BufferedWriter openUitvoerBestand(File bestand, String charSet,
                                                   boolean append)
       throws BestandException {
@@ -257,26 +206,11 @@ public final class Bestand {
     return openUitvoerBestand(new File(bestand), charSet, append);
   }
 
-  /**
-   * Schrijft een regel met een newLine naar het bestand.
-   *
-   * @param output
-   * @param regel
-   * @throws IOException
-   */
   public static void schrijfRegel(BufferedWriter output, String regel)
       throws IOException {
     schrijfRegel(output, regel, 1);
   }
 
-  /**
-   * Schrijft een regel met een newLine naar het bestand.
-   *
-   * @param output
-   * @param regel
-   * @param newlines
-   * @throws IOException
-   */
   public static void schrijfRegel(BufferedWriter output, String regel,
                                   int newlines)
       throws IOException {
@@ -308,33 +242,5 @@ public final class Bestand {
 
   public static void delete(String bestand) throws BestandException {
     delete(new File(bestand));
-  }
-
-  /**
-   * @deprecated Gebruik delete(File directory)
-   **/
-  @Deprecated
-  public static boolean verwijderDirectory(File directory) {
-    try {
-      delete(directory);
-    } catch (BestandException e) {
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * @deprecated Gebruik delete(String directory)
-   **/
-  @Deprecated
-  public static boolean verwijderDirectory(String directory) {
-    try {
-      delete(new File(directory));
-    } catch (BestandException e) {
-      return false;
-    }
-
-    return true;
   }
 }
