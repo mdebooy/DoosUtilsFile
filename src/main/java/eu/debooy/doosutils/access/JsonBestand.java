@@ -42,6 +42,8 @@ public class JsonBestand implements AutoCloseable {
   private static final  ResourceBundle  resourceBundle  =
       ResourceBundle.getBundle("DoosUtils-file", Locale.getDefault());
 
+  private static final  String  JSONARRAY = "_@jsonarray@_";
+
   private final boolean     append;
   private final String      bestand;
   private final String      charset;
@@ -51,6 +53,7 @@ public class JsonBestand implements AutoCloseable {
 
   private BufferedReader  invoer;
   private JSONObject      json;
+  private boolean         tabel;
   private BufferedWriter  uitvoer;
 
   private JsonBestand(Builder builder) throws BestandException {
@@ -60,6 +63,7 @@ public class JsonBestand implements AutoCloseable {
     classLoader = builder.getClassLoader();
     lezen       = builder.isReadOnly();
     prettify    = builder.isPrettify();
+    tabel       = false;
 
     open();
   }
@@ -172,7 +176,10 @@ public class JsonBestand implements AutoCloseable {
 
   public JSONArray getArray(String sleutel) {
     if (json.containsKey(sleutel)) {
-      return (JSONArray) json.get(sleutel);
+      var resultaat = json.get(sleutel);
+      if (resultaat instanceof JSONArray) {
+        return (JSONArray) json.get(sleutel);
+      }
     }
 
     return new JSONArray();
@@ -320,7 +327,11 @@ public class JsonBestand implements AutoCloseable {
     write(regel.toString(), uitvoer);
   }
 
-  public JSONObject read() {
+  public Object read() {
+    if (tabel) {
+      return getArray(JSONARRAY);
+    }
+
     return json;
   }
 
@@ -333,7 +344,14 @@ public class JsonBestand implements AutoCloseable {
 
     var parser  = new JSONParser();
     try {
-      json = (JSONObject) parser.parse(invoer);
+      var resultaat = parser.parse(invoer);
+      if (resultaat instanceof JSONArray) {
+        json  = new JSONObject();
+        json.put(JSONARRAY, (JSONArray) resultaat);
+        tabel = true;
+      } else {
+        json = (JSONObject) resultaat;
+      }
     } catch (IOException | ParseException e) {
       throw new BestandException(e);
     }
