@@ -34,6 +34,7 @@ public class BestandConstants {
   public static final String  ERR_BEST_READONLY     = "bestand.readonly";
   public static final String  ERR_BEST_VERWIJDER    = "bestand.verwijder";
   public static final String  ERR_BEST_WRITEONLY    = "bestand.writeonly";
+  public static final String  ERR_MKDIR_FAILED      = "bestand.error.mkdir";
 
   public static final String  ERR_CLP_READONLY      = "classpath.readonly";
 

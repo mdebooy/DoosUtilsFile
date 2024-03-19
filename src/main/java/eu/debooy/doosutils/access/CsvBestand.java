@@ -99,8 +99,6 @@ public class CsvBestand implements AutoCloseable {
     private boolean     lezen           = true;
     private String      lineSeparator   = System.getProperty("line.separator");
 
-    public Builder() {}
-
     public CsvBestand build() throws BestandException {
       return new CsvBestand(this);
     }
@@ -269,6 +267,36 @@ public class CsvBestand implements AutoCloseable {
     return lezen;
   }
 
+  private void leesHeader() throws BestandException {
+    try {
+      lijn  = invoer.readLine();
+    } catch (IOException e) {
+      throw new BestandException(e);
+    }
+
+    if (null == lijn) {
+      throw new BestandException(MessageFormat.format(
+          resourceBundle.getString(BestandConstants.ERR_BEST_LEEG),
+                                                      getBestand()));
+    }
+
+    if (header) {
+      kolomNamen  = splits(lijn);
+      try {
+        lijn  = invoer.readLine();
+        if (null == lijn) {
+          throw new BestandException(MessageFormat.format(
+              resourceBundle.getString(BestandConstants.ERR_BEST_LEEG),
+                                                          getBestand()));
+        }
+      } catch (IOException e) {
+        throw new BestandException(e);
+      }
+    } else {
+      kolomNamen  = new String[splits(lijn).length];
+    }
+  }
+
   public String[] next() throws BestandException {
     if (isEof()) {
       throw new BestandException(
@@ -307,78 +335,61 @@ public class CsvBestand implements AutoCloseable {
 
     try {
       if (null == classLoader) {
-        if (lezen) {
-          invoer  = new BufferedReader(
-                      new InputStreamReader(
-                        new FileInputStream (bestand), charset));
-        } else {
-          if (isAppend() && hasHeading()) {
-            BufferedReader  head  = new BufferedReader(
-                new InputStreamReader(
-                    new FileInputStream (bestand), charset));
-            String[]  headr = splits(head.readLine());
-            head.close();
-            if (kolomNamen.length == 0) {
-              kolomNamen  = Arrays.copyOf(headr, headr.length);
-            } else {
-              if (!Arrays.equals(headr, kolomNamen)) {
-                throw new BestandException(
-                    resourceBundle.getString(
-                        BestandConstants.ERR_CSV_KOLOM_FOUT));
-              }
-            }
-          }
-
-          uitvoer = new BufferedWriter(
-                      new OutputStreamWriter(
-                        new FileOutputStream(bestand, append), charset));
-        }
+        openFilesystem();
       } else {
-        if (lezen) {
-          invoer  = new BufferedReader(
-                      new InputStreamReader(
-                          classLoader.getResourceAsStream(bestand), charset));
-        } else {
-          throw new BestandException(
-              resourceBundle.getString(BestandConstants.ERR_CLP_READONLY));
-        }
+        openClassLoader();
       }
     } catch (IOException e) {
       throw new BestandException(e);
     }
 
     if (lezen) {
-      try {
-        lijn  = invoer.readLine();
-      } catch (IOException e) {
-        throw new BestandException(e);
-      }
-
-      if (null == lijn) {
-        throw new BestandException(MessageFormat.format(
-            resourceBundle.getString(BestandConstants.ERR_BEST_LEEG),
-                                                        getBestand()));
-      }
-
-      if (header) {
-        kolomNamen  = splits(lijn);
-        try {
-          lijn  = invoer.readLine();
-          if (null == lijn) {
-            throw new BestandException(MessageFormat.format(
-                resourceBundle.getString(BestandConstants.ERR_BEST_LEEG),
-                                                            getBestand()));
-          }
-        } catch (IOException e) {
-          throw new BestandException(e);
-        }
-      } else {
-        kolomNamen  = new String[splits(lijn).length];
-      }
+      leesHeader();
     } else {
       if (!isAppend() && kolomNamen.length > 0) {
         write((Object[])kolomNamen);
       }
+    }
+  }
+
+  private void openClassLoader() throws BestandException, IOException {
+    if (lezen) {
+      invoer  = new BufferedReader(
+                  new InputStreamReader(
+                      classLoader.getResourceAsStream(bestand), charset));
+    } else {
+      throw new BestandException(
+          resourceBundle.getString(BestandConstants.ERR_CLP_READONLY));
+    }
+  }
+
+  private void openFilesystem() throws BestandException, IOException {
+    if (lezen) {
+      invoer  = new BufferedReader(
+                  new InputStreamReader(
+                    new FileInputStream (bestand), charset));
+    } else {
+      if (isAppend() && hasHeading()) {
+        String[] headr;
+        try (BufferedReader head = new BufferedReader(
+                new InputStreamReader(
+                        new FileInputStream (bestand), charset))) {
+          headr = splits(head.readLine());
+        }
+        if (kolomNamen.length == 0) {
+          kolomNamen  = Arrays.copyOf(headr, headr.length);
+        } else {
+          if (!Arrays.equals(headr, kolomNamen)) {
+            throw new BestandException(
+                resourceBundle.getString(
+                    BestandConstants.ERR_CSV_KOLOM_FOUT));
+          }
+        }
+      }
+
+      uitvoer = new BufferedWriter(
+                  new OutputStreamWriter(
+                    new FileOutputStream(bestand, append), charset));
     }
   }
 
@@ -446,24 +457,7 @@ public class CsvBestand implements AutoCloseable {
     StringBuilder regel = new StringBuilder();
 
     for (Object kolom : kolommen) {
-      if (null == kolom) {
-        regel.append(fieldSeparator);
-      } else {
-        if (kolom instanceof String) {
-          if (((String) kolom).contains(fieldSeparator)
-              || ((String) kolom).contains(delimiter)
-              || ((String) kolom).contains(lineSeparator)) {
-            regel.append(fieldSeparator).append(delimiter)
-                 .append(((String) kolom).replaceAll(delimiter,
-                                                    delimiter + delimiter))
-                .append(delimiter);
-          } else {
-            regel.append(fieldSeparator).append(kolom);
-          }
-        } else {
-          regel.append(fieldSeparator).append(kolom);
-        }
-      }
+      writeKolom(kolom, regel);
     }
 
     try {
@@ -473,6 +467,28 @@ public class CsvBestand implements AutoCloseable {
       uitvoer.newLine();
     } catch (IOException e) {
       throw new BestandException(e);
+    }
+  }
+
+  private void writeKolom(Object kolom, StringBuilder regel) {
+    if (null == kolom) {
+      regel.append(fieldSeparator);
+      return;
+    }
+
+    if (kolom instanceof String) {
+      if (((String) kolom).contains(fieldSeparator)
+          || ((String) kolom).contains(delimiter)
+          || ((String) kolom).contains(lineSeparator)) {
+        regel.append(fieldSeparator).append(delimiter)
+             .append(((String) kolom).replaceAll(delimiter,
+                                                delimiter + delimiter))
+            .append(delimiter);
+      } else {
+        regel.append(fieldSeparator).append(kolom);
+      }
+    } else {
+      regel.append(fieldSeparator).append(kolom);
     }
   }
 }

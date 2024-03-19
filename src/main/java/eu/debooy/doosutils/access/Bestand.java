@@ -29,6 +29,7 @@ import java.io.LineNumberReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -232,7 +233,9 @@ public final class Bestand {
         delete(file);
       }
     } else {
-      if (!bestand.delete()) {
+      try {
+        Files.delete(bestand.toPath());
+      } catch (IOException e) {
         throw new BestandException(MessageFormat.format(
             resourceBundle.getString(BestandConstants.ERR_BEST_VERWIJDER),
                                                         bestand.getName()));

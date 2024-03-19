@@ -20,134 +20,139 @@
 package eu.debooy.doosutils.access;
 
 import eu.debooy.doosutils.exception.BestandException;
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
 
 
 /**
  * @author Marco de Booij
  */
-public final class ZipBestand {
-  private ZipBestand() {}
+public class ZipBestand {
+  private static final  ResourceBundle  resourceBundle  =
+      ResourceBundle.getBundle("DoosUtils-file", Locale.getDefault());
 
-  public static void inpakken(String bron, String zip) throws BestandException {
-    ZipOutputStream doel  = null;
-    try {
-      doel  = new ZipOutputStream(new FileOutputStream(zip));
-      add(new File(bron), bron, doel);
-    } catch (FileNotFoundException e) {
-      throw new BestandException(e);
-    } finally {
-      if (null != doel) {
-        try {
-          doel.close();
-        } catch (IOException e) {
-          throw new BestandException(e);
-        }
-      }
+  private final ClassLoader classLoader;
+  private final boolean     lezen;
+  private final String      zip;
+
+  private ZipBestand(ZipBestand.Builder builder) {
+    classLoader = builder.getClassLoader();
+    if (null == classLoader) {
+      lezen     = builder.isReadOnly();
+    } else {
+      lezen     = true;
+    }
+    zip         = builder.getZip();
+  }
+
+  public static final class Builder {
+    private ClassLoader classLoader = null;
+    private boolean     lezen       = true;
+    private String      zip         = "";
+
+    public ZipBestand build() {
+      return new ZipBestand(this);
+    }
+
+    public ClassLoader getClassLoader() {
+      return classLoader;
+    }
+
+    public String getZip() {
+      return zip;
+    }
+
+    public boolean isReadOnly() {
+      return lezen;
+    }
+
+    public Builder setClassLoader(ClassLoader classLoader) {
+      this.classLoader  = classLoader;
+      return this;
+    }
+
+    public Builder setLezen(boolean lezen) {
+      this.lezen        = lezen;
+      return this;
+    }
+
+    public Builder setZip(String zip) {
+      this.zip          = zip;
+      return this;
     }
   }
 
-  public static void uitpakken(String zip, String doel)
-      throws BestandException {
-    ZipFile           bron  = null;
-    FileOutputStream  fos   = null;
-    try {
-      bron  = new ZipFile(zip);
-      Enumeration<? extends ZipEntry> entries = bron.entries();
+  public String getZip() {
+    return zip;
+  }
+
+  public boolean isReadOnly() {
+    return lezen;
+  }
+
+  public void inpakken(String bestand) throws BestandException {
+    var                 bron  = Paths.get(bestand);
+    Map<String, String> env   = new HashMap<>();
+
+    if (isReadOnly()) {
+            throw new BestandException(MessageFormat.format(
+          resourceBundle.getString(BestandConstants.ERR_BEST_READONLY),
+                                                      zip));
+    }
+
+    if (!Files.isRegularFile(bron)) {
+            throw new BestandException(MessageFormat.format(
+          resourceBundle.getString(BestandConstants.ERR_BEST_FOUT),
+                                                      bestand));
+    }
+
+    env.put("create", "true");
+    var                 uri   = URI.create("jar:file:" + zip);
+
+    try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
+      var zipPath = zipfs.getPath(bron.getFileName().toString());
+      Files.copy(bron, zipPath, StandardCopyOption.REPLACE_EXISTING);
+    } catch (IOException e) {
+      throw new BestandException(e);
+    }
+  }
+
+  public void uitpakken(String doel) throws BestandException {
+    try (var bron = new ZipFile(zip)) {
+      var entries = bron.entries();
       while (entries.hasMoreElements()) {
         var entry   = entries.nextElement();
         var bestand = new File(doel + File.separator + entry.getName());
         if (entry.isDirectory()) {
           if (!bestand.mkdir()) {
-            throw new BestandException("mkdir " + bestand + " failed.");
+            throw new BestandException(MessageFormat.format(
+          resourceBundle.getString(BestandConstants.ERR_MKDIR_FAILED),
+                                                      bestand));
           }
         } else {
-          try (var is = bron.getInputStream(entry)) {
-            fos = new FileOutputStream(bestand);
+          try (var is  = bron.getInputStream(entry);
+               var fos = new FileOutputStream(bestand)) {
             while (is.available() > 0) {
               fos.write(is.read());
             }
-            fos.close();
           }
         }
       }
     } catch (IOException e) {
       throw new BestandException(e);
-    } finally {
-      IOException ie  = null;
-      if (null != bron) {
-        try {
-          bron.close();
-        } catch (IOException e) {
-          ie = e;
-        }
-      }
-      if (null != fos) {
-        try {
-          fos.close();
-        } catch (IOException e) {
-          ie = e;
-        }
-      }
-      if (null != ie) {
-        throw new BestandException(ie);
-      }
-    }
-  }
-
-  private static void add(File bron, String basis, ZipOutputStream doel)
-      throws BestandException {
-    BufferedInputStream in  = null;
-    try {
-      var bestand     = bron.getPath().replace("\\", "/");
-      var zipBestand  = bron.getCanonicalPath().substring(basis.length());
-      if (bron.isDirectory()) {
-        if (!bestand.isEmpty()) {
-          if (!bestand.endsWith("/")) {
-            zipBestand  += "/";
-          }
-          var entry = new ZipEntry(zipBestand);
-          entry.setTime(bron.lastModified());
-          doel.putNextEntry(entry);
-          doel.closeEntry();
-        }
-        for (File nestedFile : bron.listFiles()) {
-          add(nestedFile, basis, doel);
-        }
-        return;
-      }
-
-      var entry = new ZipEntry(zipBestand);
-      entry.setTime(bron.lastModified());
-      doel.putNextEntry(entry);
-      in  = new BufferedInputStream(new FileInputStream(bron));
-
-      var buffer  = new byte[1024];
-      var count   = in.read(buffer);
-      while (count >= 0) {
-        doel.write(buffer, 0, count);
-        count = in.read(buffer);
-      }
-      doel.closeEntry();
-    } catch (IOException e) {
-      throw new BestandException(e);
-    } finally {
-      if (null != in) {
-        try {
-          in.close();
-        } catch (IOException e) {
-          throw new BestandException(e);
-        }
-      }
     }
   }
 }

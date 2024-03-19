@@ -16,20 +16,17 @@
  */
 package eu.debooy.doosutils.access;
 
-import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import eu.debooy.doosutils.exception.BestandException;
-
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
-
+import static junit.framework.TestCase.fail;
 import org.junit.AfterClass;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -104,7 +101,7 @@ public class CsvBestandTest {
                  "CLASSPATH/test.csv", csvBestand.getBestand());
     assertFalse("InvoerUitClasspath - Heading", csvBestand.hasHeading());
     assertTrue("InvoerUitClasspath - ReadOnly", csvBestand.isReadOnly());
-    int lijnen  = 0;
+    var lijnen  = 0;
     while (csvBestand.hasNext()) {
       lijnen++;
       try {
@@ -153,7 +150,7 @@ public class CsvBestandTest {
                  "CLASSPATH/testheading.csv", csvBestand.getBestand());
     assertTrue("InvoerHeadingUitClasspath - Heading", csvBestand.hasHeading());
     assertTrue("InvoerHeadingUitClasspath - ReadOnly", csvBestand.isReadOnly());
-    int lijnen  = 0;
+    var lijnen  = 0;
     while (csvBestand.hasNext()) {
       lijnen++;
       try {
@@ -180,7 +177,7 @@ public class CsvBestandTest {
 
   @Test
   public void testInvoerUitDirectory() {
-    String[]    kolommen    = new String[2];
+    var         kolommen    = new String[2];
     CsvBestand  csvBestand  = null;
     try {
       csvBestand  = new CsvBestand.Builder().setBestand(TEMP + File.separator
@@ -194,7 +191,7 @@ public class CsvBestandTest {
     assertEquals("InvoerUitDirectory - naam",
                  TEMP + File.separator + "test.csv", csvBestand.getBestand());
     assertTrue("InvoerUitDirectory - ReadOnly", csvBestand.isReadOnly());
-    int lijnen  = 0;
+    var lijnen  = 0;
     while (csvBestand.hasNext()) {
       lijnen++;
       try {
@@ -245,7 +242,7 @@ public class CsvBestandTest {
                  TEMP + File.separator + "testheading.csv",
                  csvBestand.getBestand());
     assertTrue("InvoerHeadingUitDirectory - ReadOnly", csvBestand.isReadOnly());
-    int lijnen  = 0;
+    var lijnen  = 0;
     while (csvBestand.hasNext()) {
       lijnen++;
       try {
@@ -320,7 +317,7 @@ public class CsvBestandTest {
       assertTrue(e.getMessage(), false);
     }
 
-    int lijnen  = 0;
+    var lijnen  = 0;
     while (lijnen < 3) {
       lijnen++;
       try {
@@ -353,7 +350,7 @@ public class CsvBestandTest {
       assertTrue(e.getMessage(), false);
     }
 
-    int lijnen  = 0;
+    var lijnen  = 0;
     while (lijnen < 3) {
       lijnen++;
       try {
@@ -387,7 +384,7 @@ public class CsvBestandTest {
       assertTrue(e.getMessage(), false);
     }
 
-    Object[]  kolommen  = new Object[] {"Edward", 3};
+    var kolommen  = new Object[] {"Edward", 3};
     try {
       csvBestand.write(kolommen);
       kolommen  = new Object[] {"Pi", 3.1416};
@@ -441,7 +438,7 @@ public class CsvBestandTest {
       assertTrue(e.getMessage(), false);
     }
 
-    Object[]  kolommen  = new Object[] {"Edward", 3};
+    var kolommen  = new Object[] {"Edward", 3};
     try {
       csvBestand.write(kolommen);
       kolommen  = new Object[] {"Pi", 3.1416};

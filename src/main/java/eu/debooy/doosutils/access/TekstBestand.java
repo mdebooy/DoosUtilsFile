@@ -66,8 +66,6 @@ public class TekstBestand implements AutoCloseable {
     private ClassLoader classLoader = null;
     private boolean     lezen       = true;
 
-    public Builder() {}
-
     public TekstBestand build() throws BestandException {
       return new TekstBestand(this);
     }
@@ -185,18 +183,18 @@ public class TekstBestand implements AutoCloseable {
           resourceBundle.getString(BestandConstants.ERR_BEST_EOF));
     }
 
-    String  record  = lijn;
+    var regel = lijn;
 
     try {
-      lijn = invoer.readLine();
+      lijn  = invoer.readLine();
     } catch (IOException e) {
       throw new BestandException(e);
     }
 
-    return record;
+    return regel;
   }
 
-  public void open() throws BestandException {
+  public final void open() throws BestandException {
     if (null != invoer
         || null != uitvoer) {
       throw new BestandException(MessageFormat.format(
@@ -206,24 +204,9 @@ public class TekstBestand implements AutoCloseable {
 
     try {
       if (null == classLoader) {
-        if (lezen) {
-          invoer  = new BufferedReader(
-                      new InputStreamReader(
-                        new FileInputStream (bestand), charset));
-        } else {
-          uitvoer = new BufferedWriter(
-                      new OutputStreamWriter(
-                        new FileOutputStream(bestand, append), charset));
-        }
+        openFileSystem();
       } else {
-        if (lezen) {
-          invoer  = new BufferedReader(
-                      new InputStreamReader(
-                          classLoader.getResourceAsStream(bestand), charset));
-        } else {
-          throw new BestandException(
-              resourceBundle.getString(BestandConstants.ERR_CLP_READONLY));
-        }
+        openClassLoader();
       }
     } catch (UnsupportedEncodingException | FileNotFoundException e) {
       throw new BestandException(e);
@@ -241,6 +224,31 @@ public class TekstBestand implements AutoCloseable {
             resourceBundle.getString(BestandConstants.ERR_BEST_LEEG),
                                                         bestand));
       }
+    }
+  }
+
+  private void openClassLoader()
+      throws BestandException, UnsupportedEncodingException {
+    if (lezen) {
+      invoer  = new BufferedReader(
+                  new InputStreamReader(
+                      classLoader.getResourceAsStream(bestand), charset));
+    } else {
+      throw new BestandException(
+          resourceBundle.getString(BestandConstants.ERR_CLP_READONLY));
+    }
+  }
+
+  private void openFileSystem()
+      throws UnsupportedEncodingException, FileNotFoundException {
+    if (lezen) {
+      invoer  = new BufferedReader(
+                  new InputStreamReader(
+                    new FileInputStream (bestand), charset));
+    } else {
+      uitvoer = new BufferedWriter(
+                  new OutputStreamWriter(
+                    new FileOutputStream(bestand, append), charset));
     }
   }
 

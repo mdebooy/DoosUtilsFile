@@ -76,8 +76,6 @@ public class JsonBestand implements AutoCloseable {
     private ClassLoader classLoader = null;
     private boolean     lezen       = true;
 
-    public Builder() {}
-
     public JsonBestand build() throws BestandException {
       return new JsonBestand(this);
     }
@@ -347,7 +345,7 @@ public class JsonBestand implements AutoCloseable {
       var resultaat = parser.parse(invoer);
       if (resultaat instanceof JSONArray) {
         json  = new JSONObject();
-        json.put(JSONARRAY, (JSONArray) resultaat);
+        json.put(JSONARRAY, resultaat);
         tabel = true;
       } else {
         json = (JSONObject) resultaat;
