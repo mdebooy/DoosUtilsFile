@@ -29,6 +29,7 @@ import java.io.LineNumberReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.text.MessageFormat;
 import java.util.Locale;
@@ -43,6 +44,12 @@ public final class Bestand {
       ResourceBundle.getBundle("DoosUtils-file", Locale.getDefault());
 
   private Bestand() {}
+
+  public static boolean bestaat(String bestand) {
+    var path  = FileSystems.getDefault().getPath(bestand);
+
+    return Files.exists(path);
+  }
 
   public static void copy(BufferedReader invoer, BufferedWriter uitvoer)
       throws BestandException {

@@ -52,7 +52,7 @@ public class CsvBestandTest {
 
   @BeforeClass
   public static void beforeClass() throws BestandException {
-    Locale.setDefault(new Locale("nl"));
+    Locale.setDefault(new Locale.Builder().setLanguage("nl").build());
     resourceBundle   = ResourceBundle.getBundle("DoosUtils-file",
                                                 Locale.getDefault());
 
