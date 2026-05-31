@@ -46,12 +46,5 @@ public class BestandConstants {
 
   public static final String  ERR_MAP_FOUT          = "map.fout";
   public static final String  ERR_MAP_ONBEKEND      = "map.onbekend";
-
-  public static final String  EXT_CSV   = ".csv";
-  public static final String  EXT_JSON  = ".json";
-  public static final String  EXT_PGN   = ".pgn";
-  public static final String  EXT_TEX   = ".tex";
-  public static final String  EXT_TRF   = ".trf";
-  public static final String  EXT_ZIP   = ".zip";
 }
 
