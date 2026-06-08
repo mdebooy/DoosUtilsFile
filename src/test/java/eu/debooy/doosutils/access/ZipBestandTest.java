@@ -48,8 +48,7 @@ public class ZipBestandTest {
   }
 
   @BeforeClass
-  public static void beforeClass()
-      throws BestandException, IOException {
+  public static void beforeClass() throws IOException {
     var invoer  = CLASSLOADER.getResourceAsStream("test.zip");
     var uitvoer = Paths.get(TEMP + File.separator + "test.zip");
 

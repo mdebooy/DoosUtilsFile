@@ -94,7 +94,7 @@ public class CsvBestandTest {
                                             .setHeader(false)
                                             .build();
     } catch (BestandException e) {
-      assertTrue(e.getMessage(), false);
+      fail(String.format("Geen exception verwacht [%s]", e.getMessage()));
     }
 
     assertEquals("InvoerUitClasspath - naam",
@@ -235,7 +235,7 @@ public class CsvBestandTest {
                                             .setKolomNamen(KOLOMMEN)
                                             .build();
     } catch (BestandException e) {
-      assertTrue(e.getMessage(), false);
+      fail(String.format("Geen exception verwacht [%s]", e.getMessage()));
     }
 
     assertEquals("InvoerHeadingUitDirectory - naam",
@@ -506,7 +506,7 @@ public class CsvBestandTest {
 
   @Test
   public void testZonderHeading() throws BestandException {
-    CsvBestand  csvBestand  = null;
+    CsvBestand  csvBestand;
     try {
       csvBestand  = new CsvBestand.Builder().setBestand(TEMP + File.separator
                                                         + "testheading.csv")
@@ -515,7 +515,7 @@ public class CsvBestandTest {
                                             .build();
       assertArrayEquals("ZonderHeading", KOLOMMEN, csvBestand.getKolomNamen());
     } catch (BestandException e) {
-      assertTrue(e.getMessage(), false);
+      fail(String.format("Geen exception verwacht [%s]", e.getMessage()));
     }
     assertTrue("ZonderHeading - equals",
         Bestand.equals(

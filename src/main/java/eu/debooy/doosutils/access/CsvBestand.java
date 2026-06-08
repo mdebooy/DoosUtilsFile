@@ -461,7 +461,7 @@ public class CsvBestand implements AutoCloseable {
     }
 
     try {
-      if (regel.length() > 0) {
+      if (!regel.isEmpty()) {
         uitvoer.write(regel.toString().substring(fieldSeparator.length()));
       }
       uitvoer.newLine();
@@ -476,14 +476,13 @@ public class CsvBestand implements AutoCloseable {
       return;
     }
 
-    if (kolom instanceof String) {
-      if (((String) kolom).contains(fieldSeparator)
-          || ((String) kolom).contains(delimiter)
-          || ((String) kolom).contains(lineSeparator)) {
+    if (kolom instanceof String kol) {
+      if (kol.contains(fieldSeparator)
+          || kol.contains(delimiter)
+          || kol.contains(lineSeparator)) {
         regel.append(fieldSeparator).append(delimiter)
-             .append(((String) kolom).replaceAll(delimiter,
-                                                delimiter + delimiter))
-            .append(delimiter);
+             .append(kol.replaceAll(delimiter, delimiter + delimiter))
+             .append(delimiter);
       } else {
         regel.append(fieldSeparator).append(kolom);
       }
